@@ -79,28 +79,6 @@ def get_and_process_frame(vid):
     return color_map, display_frame
 
 
-def car_lists_equal(car_list1, car_list2):
-    # check inside the nested lists for equality
-    for car1 in car_list1:
-        car_found = False
-        for car2 in car_list2:
-            if car1[0] == car2[0] and car1[1] == car2[1] or car1[0] == car2[1] and car1[1] == car2[0]:
-                car_found = True
-                break
-        if not car_found:
-            return False
-    for car2 in car_list2:
-        car_found = False
-        for car1 in car_list1:
-            if car1[0] == car2[0] and car1[1] == car2[1] or car1[0] == car2[1] and car1[1] == car2[0]:
-                car_found = True
-                break
-        if not car_found:
-            return False
-
-    return True
-
-
 def convert_color_map_to_cars(color_map: list[list]) -> list[list[list]]:
     # color_map is a 2d array of Color enums
     # returns a list of cars, where each car is a list of 2 points
