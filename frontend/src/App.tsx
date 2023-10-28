@@ -37,22 +37,27 @@ function carsToId(cars: number[][][]): number {
 }
 
 function App() {
-
-  const [socket, setSocket] = React.useState<WebSocket | null>(null);
+  const ws = React.useRef<WebSocket | null>(null);
 
   React.useEffect(() => {
-    const ws = new WebSocket('ws://localhost:5000');
+    ws.current = new WebSocket('ws://localhost:8000/ws');
 
-    ws.onmessage = (event) => handleSocketMessage(event);
+    ws.current.onmessage = (message) => {
+      handleSocketMessage(message);
+    }
 
-    setSocket(ws);
+    ws.current.onopen = () => {
+      ws.current?.send(JSON.stringify({ event: 'connected' }));
+    };
+
     return () => {
-      if (ws) {
-        ws.close();
-      }
+      ws.current?.close();
     };
   }, []);
 
+  function sendSocketMessage(message: string) {
+    ws.current?.send(JSON.stringify({ event: 'message', data: message }));
+  }
 
   function handleSocketMessage(event: MessageEvent) {
     let data = JSON.parse(event.data);
@@ -75,10 +80,12 @@ function App() {
 
   return (
     // tailwind that splits the screen into 2 columns
-    <div className="grid grid-cols-2 min-h-screen">
-      <Grid grid={grid} />
-      <Graph state={state} states={states} stateTransitions={stateTransitions} />
-    </div >
+    <div>
+      <div className="grid grid-cols-2 min-h-screen">
+        <Grid grid={grid} />
+        <Graph state={state} states={states} stateTransitions={stateTransitions} />
+      </div >
+    </div>
   );
 }
 
