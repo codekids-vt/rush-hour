@@ -1,3 +1,4 @@
+import React from "react";
 import { Graph } from "./Graph";
 import { Grid } from "./Grid";
 
@@ -36,6 +37,27 @@ function carsToId(cars: number[][][]): number {
 }
 
 function App() {
+
+  const [socket, setSocket] = React.useState<WebSocket | null>(null);
+
+  React.useEffect(() => {
+    const ws = new WebSocket('ws://localhost:5000');
+
+    ws.onmessage = (event) => handleSocketMessage(event);
+
+    setSocket(ws);
+    return () => {
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, []);
+
+
+  function handleSocketMessage(event: MessageEvent) {
+    let data = JSON.parse(event.data);
+    console.log(data);
+  }
 
   let prevState = [
     [[0, 1], [0, 2]],
