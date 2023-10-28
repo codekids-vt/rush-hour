@@ -1,13 +1,23 @@
+import enum
 from tkinter import CURRENT, W
 import cv2
 import numpy as np
 import pygame
 import sys
 
+class Color(enum.Enum):
+    RED = 'red'
+    BLUE = 'blue'
+    WHITE = 'white'
 
-def is_predominantly_red(pixel):
+def get_color(pixel) -> Color:
     b, g, r = pixel
-    return r > 1.2 * g and r > 1.2 * b
+    if r > 1.2 * g and r > 1.2 * b:
+        return Color.RED
+    elif b > 1.2 * g and b > 1.2 * r:
+        return Color.BLUE
+    else:
+        return Color.WHITE
 
 
 def get_and_process_frame(vid):
@@ -34,6 +44,7 @@ def get_and_process_frame(vid):
     avg_values = np.zeros((grid_size, grid_size, 3))
     num_red_pixels = np.zeros((grid_size, grid_size))
     red_sections = np.zeros((grid_size, grid_size))
+    color_map = [[0 for i in range(grid_size)] for j in range(grid_size)]
     for i in range(0, grid_size):
         for j in range(0, grid_size):
 
@@ -46,8 +57,8 @@ def get_and_process_frame(vid):
             frame_part_avg = cv2.mean(frame_part)
             avg_values[i][j] = frame_part_avg[0:3]
 
-            if is_predominantly_red(frame_part_avg[0:3]):
-                red_sections[i][j] = 1
+            # put in the color for the color map part
+            color_map[i][j] = get_color(frame_part_avg[0:3])
 
     display_frame = frame.copy()
 
@@ -65,10 +76,10 @@ def get_and_process_frame(vid):
             display_frame = cv2.rectangle(display_frame, (j * frame_part_width, i * frame_part_height), (int((j + 0.1) * frame_part_width), int((i + 0.1) * frame_part_height)), tuple(
                 map(lambda x: int(x), avg_values[i][j])), -1)
 
-            # display if it is red or not
-            display_frame = cv2.putText(display_frame, str(red_sections[i][j]), (
+            # display the color from the color map
+            display_frame = cv2.putText(display_frame, str(color_map[i][j]), (
                 j * frame_part_width, (i + 1) * frame_part_height), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-    return red_sections, display_frame
+    return color_map, display_frame
 
 
 SCREEN_WIDTH = 1000
@@ -87,14 +98,12 @@ START_CAR_POSITIONS = [
 WANTED_CAR_POSITIONS = []
 CAR_POSITIONS = []
 
-
 def get_red_sections(car_positions):
     red_sections = np.zeros((6, 6))
     for car in car_positions:
         red_sections[car[0][0]][car[0][1]] = 1
         red_sections[car[1][0]][car[1][1]] = 1
     return red_sections
-
 
 def draw_grid(screen, red_sections):
     grid_size = red_sections.shape[0]
@@ -113,12 +122,34 @@ def draw_next_button(screen):
     font = pygame.font.SysFont('Arial', 20)
     text = font.render('Next', True, (0, 0, 0))
     screen.blit(text, (WIDTH + 50 + 25, 50 + 15))
+    
+def car_lists_equal(car_list1, car_list2):
+    # check inside the nested lists for equality
+    for car1 in car_list1:
+        car_found = False
+        for car2 in car_list2:
+            if car1[0] == car2[0] and car1[1] == car2[1] or car1[0] == car2[1] and car1[1] == car2[0]:
+                car_found = True
+                break
+        if not car_found:
+            return False
+    for car2 in car_list2:
+        car_found = False
+        for car1 in car_list1:
+            if car1[0] == car2[0] and car1[1] == car2[1] or car1[0] == car2[1] and car1[1] == car2[0]:
+                car_found = True
+                break
+        if not car_found:
+            return False
+        
+    return True
 
 
-def handle_next_button_click(red_sections):
+
+def handle_next_button_click(current_cars):
     # if board looks like the wanted board, then add one car from the start board to the wanted board
     message = ""
-    if np.array_equal(red_sections, get_red_sections(WANTED_CAR_POSITIONS)):
+    if car_lists_equal(current_cars, WANTED_CAR_POSITIONS):
         if len(START_CAR_POSITIONS) > 0:
             WANTED_CAR_POSITIONS.append(START_CAR_POSITIONS.pop(0))
             CAR_POSITIONS.append(WANTED_CAR_POSITIONS[-1])
@@ -133,8 +164,35 @@ def draw_message(screen, message):
     font = pygame.font.SysFont('Arial', 20)
     text = font.render(message, True, (0, 0, 0))
     screen.blit(text, (WIDTH + 50, 150))
-
-
+    
+def convert_color_map_to_cars(color_map: list[list]) -> list[list[list]]:
+    # color_map is a 2d array of Color enums
+    # returns a list of cars, where each car is a list of 2 points
+    cars = []
+    for i in range(len(color_map)):
+        for j in range(len(color_map[i])):
+            
+            # skip if already added to a car
+            already_added = False
+            for car in cars:
+                for car_cell in car:
+                    if car_cell[0] == i and car_cell[1] == j:
+                        already_added = True
+                        break
+            if already_added:
+                continue
+            
+            for color in Color:
+                if color_map[i][j] == color:
+                    if color == Color.WHITE:
+                        continue
+                    # look for the other point of the car then add the car to the list
+                    for k in range(len(color_map)):
+                        for l in range(len(color_map[k])):
+                            if color_map[k][l] == color and (k != i or l != j):
+                                cars.append([[i, j], [k, l]])
+    return cars
+    
 def main():
     vid = cv2.VideoCapture(0)
     pygame.init()
@@ -150,8 +208,10 @@ def main():
         # openCV stuff
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        red_sections, display_frame = get_and_process_frame(vid)
-        print(get_red_sections(WANTED_CAR_POSITIONS))
+        color_map, display_frame = get_and_process_frame(vid)
+        # print(color_map)
+        current_cars = convert_color_map_to_cars(color_map)
+        print(current_cars)
         cv2.imshow('frame', display_frame)
 
         # pygame stuff
@@ -162,7 +222,7 @@ def main():
             if event.type == pygame.MOUSEBUTTONUP:
                 pos = pygame.mouse.get_pos()
                 if pos[0] > WIDTH + 50 and pos[0] < WIDTH + 150 and pos[1] > 50 and pos[1] < 100:
-                    message = handle_next_button_click(red_sections)
+                    message = handle_next_button_click(current_cars)
 
         screen.fill(WHITE)
         draw_next_button(screen)
