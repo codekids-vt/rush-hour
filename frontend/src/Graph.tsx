@@ -14,7 +14,7 @@ export function Graph(props: IGraphProps) {
   const nodes: GraphNode[] = props.states.map((state, index) => {
     const isCurrentState = props.state === state;
     return {
-      id: index.toString(),
+      id: state.toString(),
       label: state.toString(),
       fill: isCurrentState ? 'red' : 'black',
     };
@@ -25,7 +25,6 @@ export function Graph(props: IGraphProps) {
       id: `${transition[0]}-${transition[1]}`,
       source: transition[0].toString(),
       target: transition[1].toString(),
-      color: 'black',
     };
   }
   );
