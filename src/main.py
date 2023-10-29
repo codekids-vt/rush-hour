@@ -100,7 +100,6 @@ def main():
     clock = pygame.time.Clock()
     message = ""
     while (True):
-        # openCV stuff
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         color_map, display_frame = get_and_process_frame(vid)

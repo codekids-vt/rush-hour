@@ -12,6 +12,10 @@ function carsToGrid(cars: number[][][]): string[][] {
     }
   }
 
+  if (cars.length === 0) {
+    return grid
+  }
+
   for (let car of cars) {
     for (let coord of car) {
       grid[coord[0]][coord[1]] = 'red'
@@ -23,28 +27,59 @@ function carsToGrid(cars: number[][][]): string[][] {
 
 // function to take a cars list and convert it to a id using a hash
 function carsToId(cars: number[][][]): number {
-  let id = 0
-  let hash = 1
+  let id = 0;
 
-  for (let car of cars) {
+  for (let i = 0; i < cars.length; i++) {
+    let car = cars[i];
     for (let coord of car) {
-      id += coord[0] * hash + coord[1] * hash * hash
-      hash *= 100
+      // Convert x and y coordinates into a unique single number
+      let singleValue = coord[0] * 100 + coord[1];
+
+      // Use powers of a large prime number to make sure each car has a unique influence on the hash
+      id += singleValue * Math.pow(9973, i);
     }
   }
 
-  return id
+  return id;
 }
 
 function App() {
   const ws = React.useRef<WebSocket | null>(null);
+  const cars = React.useRef<number[][][]>([]);
+  // const [states, setStates] = React.useState<number[]>([])
+  const states = React.useRef<number[]>([])
+  // const [stateTransitions, setStateTransitions] = React.useState<[number, number][]>([])
+  const stateTransitions = React.useRef<[number, number][]>([])
+  const [render, setRender] = React.useState<boolean>(false)
 
   React.useEffect(() => {
     ws.current = new WebSocket('ws://localhost:8000/ws');
 
     ws.current.onmessage = (message) => {
-      handleSocketMessage(message);
-    }
+      let data = JSON.parse(message.data);
+      let oldCarsId = carsToId(cars.current);
+      let newCarsId = carsToId(data.cars);
+
+      // Update states
+      // if it is a new state
+      if (!states.current.includes(newCarsId)) {
+        // check if a new transition is needed
+        states.current.push(newCarsId)
+        // very first time, we don't have a old state
+        if (oldCarsId !== 0) {
+          stateTransitions.current.push([oldCarsId, newCarsId])
+        }
+      } else if (oldCarsId !== newCarsId) {
+        // if it is not a new state, check if a new transition is needed by checking if we have been here before
+        if (!states.current.includes(oldCarsId)) {
+          states.current.push(oldCarsId)
+        }
+      }
+
+      cars.current = data.cars;
+
+      setRender(render => !render);
+    };
 
     ws.current.onopen = () => {
       ws.current?.send(JSON.stringify({ event: 'connected' }));
@@ -55,35 +90,18 @@ function App() {
     };
   }, []);
 
-  function sendSocketMessage(message: string) {
-    ws.current?.send(JSON.stringify({ event: 'message', data: message }));
-  }
+  console.log(cars.current)
 
-  function handleSocketMessage(event: MessageEvent) {
-    let data = JSON.parse(event.data);
-    console.log(data);
-  }
+  let state = carsToId(cars.current)
+  let grid = carsToGrid(cars.current)
 
-  let prevState = [
-    [[0, 1], [0, 2]],
-    [[3, 0], [4, 0]],
-  ]
-  let cars = [
-    [[0, 0], [0, 1]],
-    [[3, 0], [4, 0]],
-  ]
-
-  let state = carsToId(cars)
-  let states = [carsToId(prevState), carsToId(cars)]
-  let stateTransitions = [[carsToId(prevState), carsToId(cars)]]
-  let grid = carsToGrid(cars)
 
   return (
     // tailwind that splits the screen into 2 columns
     <div>
       <div className="grid grid-cols-2 min-h-screen">
         <Grid grid={grid} />
-        <Graph state={state} states={states} stateTransitions={stateTransitions} />
+        <Graph state={state} states={states.current} stateTransitions={stateTransitions.current} />
       </div >
     </div>
   );

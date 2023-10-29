@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { GraphCanvas, GraphEdge, GraphNode } from 'reagraph';
-import { dummyEdges, dummyNodes } from './dummyData';
 
 export interface IGraphProps {
   state: number;
@@ -26,13 +25,13 @@ export function Graph(props: IGraphProps) {
       source: transition[0].toString(),
       target: transition[1].toString(),
     };
-  }
-  );
+  });
 
   return (
     <div className="w-full h-full relative">
       <GraphCanvas
         edgeArrowPosition='none'
+        animated={false}
         nodes={nodes}
         edges={edges}
       />
