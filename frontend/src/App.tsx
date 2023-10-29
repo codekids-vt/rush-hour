@@ -42,13 +42,29 @@ function carsToId(cars: number[][][]): number {
 
   return id;
 }
+const areCarsEqual = (car1: number[][], car2: number[][]): boolean => {
+  return JSON.stringify(car1) === JSON.stringify(car2);
+};
+
+function carsEqual(cars1: number[][][], cars2: number[][][]): boolean {
+  if (cars1.length !== cars2.length) return false;
+
+  for (let i = 0; i < cars1.length; i++) {
+    let foundMatch = false;
+    for (let j = 0; j < cars2.length; j++) {
+      if (areCarsEqual(cars1[i], cars2[j])) {
+        foundMatch = true;
+        break;
+      }
+    }
+    if (!foundMatch) return false;
+  }
+
+  return true;
+}
 
 function isLegalMove(cars1: number[][][], cars2: number[][][]): boolean {
-
-  // Helper function to determine if two cars are the same.
-  const areCarsEqual = (car1: number[][], car2: number[][]): boolean => {
-    return JSON.stringify(car1) === JSON.stringify(car2);
-  };
+  if (cars1.length !== cars2.length) return false;
 
   // Helper function to determine if a car is vertical.
   const isVertical = (car: number[][]): boolean => {
@@ -104,11 +120,15 @@ function isLegalMove(cars1: number[][][], cars2: number[][][]): boolean {
   }
 }
 
+const initialCars = [
+  [[0, 0], [0, 1]],
+]
+
 function App() {
   const ws = React.useRef<WebSocket | null>(null);
-  const cars = React.useRef<number[][][]>([]);
+  const cars = React.useRef<number[][][]>(initialCars);
   // const [states, setStates] = React.useState<number[]>([])
-  const states = React.useRef<number[]>([])
+  const states = React.useRef<number[]>([carsToId(initialCars)]);
   // const [stateTransitions, setStateTransitions] = React.useState<[number, number][]>([])
   const stateTransitions = React.useRef<[number, number][]>([])
   const [render, setRender] = React.useState<boolean>(false)
@@ -141,7 +161,7 @@ function App() {
 
         cars.current = data.cars;
         setMessage(null)
-      } else {
+      } else if (!carsEqual(cars.current, data.cars)) {
         setMessage("Illegal move, please put it back to the last position")
       }
 
@@ -169,7 +189,7 @@ function App() {
       <div className="grid grid-cols-2 min-h-screen">
         <Grid grid={grid} />
         <div className="flex flex-col items-center">
-          <div className="text-2xl text-center">{message}</div>
+          <div className="text-2xl text-center h-12">{message}</div>
           <Graph state={state} states={states.current} stateTransitions={stateTransitions.current} />
         </div>
       </div >

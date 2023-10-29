@@ -83,26 +83,33 @@ def convert_color_map_to_cars(color_map: list[list]) -> list[list[list]]:
     # color_map is a 2d array of Color enums
     # returns a list of cars, where each car is a list of 2 points
     cars = []
-    for i in range(len(color_map)):
-        for j in range(len(color_map[i])):
+    for color in Color:
+        if color == Color.WHITE:
+            continue
 
-            # skip if already added to a car
-            already_added = False
-            for car in cars:
-                for car_cell in car:
-                    if car_cell[0] == i and car_cell[1] == j:
-                        already_added = True
-                        break
-            if already_added:
-                continue
-
-            for color in Color:
+        # find first point of car
+        car_point_1 = None
+        for i in range(len(color_map)):
+            found = False
+            for j in range(len(color_map[i])):
                 if color_map[i][j] == color:
-                    if color == Color.WHITE:
-                        continue
-                    # look for the other point of the car then add the car to the list
-                    for k in range(len(color_map)):
-                        for l in range(len(color_map[k])):
-                            if color_map[k][l] == color and (k != i or l != j):
-                                cars.append([[i, j], [k, l]])
+                    car_point_1 = [i, j]
+                    found = True
+                    break
+            if found:
+                break
+
+        if not car_point_1:
+            continue
+
+        # find second point of car either to the right or below
+        car_point_2 = None
+        if car_point_1[1] < len(color_map[car_point_1[0]]) - 1 and color_map[car_point_1[0]][car_point_1[1] + 1] == color:
+            car_point_2 = [car_point_1[0], car_point_1[1] + 1]
+        elif car_point_1[0] < len(color_map) - 1 and color_map[car_point_1[0] + 1][car_point_1[1]] == color:
+            car_point_2 = [car_point_1[0] + 1, car_point_1[1]]
+
+        if car_point_1 and car_point_2:
+            cars.append([car_point_1, car_point_2])
+
     return cars

@@ -40,31 +40,29 @@ async def websocket_endpoint(websocket: WebSocket):
     vid = cv2.VideoCapture(0)
 
     await websocket.accept()
-    i = 0
-    increasing = True
+    # i = 0
+    # increasing = True
     while True:
         try:
-            # color_map, display_frame = get_and_process_frame(vid)
-            # # print(color_map)
-            
-            # set current cars to walk up and down the options we have
-            
+            color_map, display_frame = get_and_process_frame(vid)
+            current_cars = convert_color_map_to_cars(color_map)
                 
-            current_cars = sample_cars_lists[i]
+            # set current cars to walk up and down the options we have
+            # current_cars = sample_cars_lists[i]
             
-            if increasing:
-                i += 1
-            else:
-                i -= 1
+            # if increasing:
+            #     i += 1
+            # else:
+            #     i -= 1
             
-            if i == len(sample_cars_lists) - 1:
-                increasing = False
-            elif i == 0:
-                increasing = True
+            # if i == len(sample_cars_lists) - 1:
+            #     increasing = False
+            # elif i == 0:
+            #     increasing = True
             
             print(current_cars)
             await websocket.send_json({"cars": current_cars})
-            await asyncio.sleep(2)
+            await asyncio.sleep(0.5)
 
         except Exception as e:
             print('error:', e)
