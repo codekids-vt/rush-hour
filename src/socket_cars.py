@@ -48,6 +48,10 @@ async def websocket_endpoint(websocket: WebSocket):
             # # print(color_map)
             
             # set current cars to walk up and down the options we have
+            
+                
+            current_cars = sample_cars_lists[i]
+            
             if increasing:
                 i += 1
             else:
@@ -57,9 +61,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 increasing = False
             elif i == 0:
                 increasing = True
-                
-            current_cars = sample_cars_lists[i]
-            
             
             print(current_cars)
             await websocket.send_json({"cars": current_cars})
