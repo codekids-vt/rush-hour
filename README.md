@@ -30,3 +30,25 @@ Choose to go with different colors since it will be the easiest to implement.
 - start button checks if board looks like the start board
 - show graph once start button is pressed
 - only legal moves are registered (illegal moves display a message)
+
+
+## Run the Project
+
+Clone the repo and run the following commands:
+
+### Python Backend
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python src/socket_cars.py 
+```
+
+### React Frontend
+
+```bash
+cd frontend
+bun i
+bun start
+```
