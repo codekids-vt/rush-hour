@@ -52,9 +52,9 @@ async def websocket_endpoint(websocket: WebSocket):
             # elif i == 0:
             #     increasing = True
             
-            # print(current_cars)
-            # await websocket.send_json({"cars": current_cars})
-            # await asyncio.sleep(0.5)
+            print(current_cars)
+            await websocket.send_json({"cars": current_cars})
+            await asyncio.sleep(0.5)
 
         except Exception as e:
             print('error:', e)
