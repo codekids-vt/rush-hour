@@ -1,6 +1,7 @@
 import React from "react";
 import { Graph } from "./Graph";
 import { Grid } from "./Grid";
+import { isLegalMove } from "./legalMove/legalMove";
 
 function carsToGrid(cars: number[][][]): string[][] {
   let grid: string[][] = []
@@ -61,63 +62,6 @@ function carsEqual(cars1: number[][][], cars2: number[][][]): boolean {
   }
 
   return true;
-}
-
-function isLegalMove(cars1: number[][][], cars2: number[][][]): boolean {
-  if (cars1.length !== cars2.length) return false;
-
-  // Helper function to determine if a car is vertical.
-  const isVertical = (car: number[][]): boolean => {
-    return car[0][1] === car[1][1];
-  };
-
-  let movedCarIndex = -1;
-  for (let i = 0; i < cars1.length; i++) {
-    let foundMatch = false;
-    for (let j = 0; j < cars2.length; j++) {
-      if (areCarsEqual(cars1[i], cars2[j])) {
-        foundMatch = true;
-        break;
-      }
-    }
-    if (!foundMatch) {
-      if (movedCarIndex !== -1) {
-        // If we have already found a car that was moved, and we find another unmatched car, then more than one car was moved.
-        return false;
-      }
-      movedCarIndex = i;
-    }
-  }
-  if (movedCarIndex === -1) return true;
-
-  let newMovedCarIndex = -1;
-  for (let i = 0; i < cars2.length; i++) {
-    let foundMatch = false;
-    for (let j = 0; j < cars1.length; j++) {
-      if (areCarsEqual(cars2[i], cars1[j])) {
-        foundMatch = true;
-        break;
-      }
-    }
-    if (!foundMatch) {
-      if (newMovedCarIndex !== -1) {
-        // If we have already found a car that was moved, and we find another unmatched car, then more than one car was moved.
-        return false;
-      }
-      newMovedCarIndex = i;
-    }
-  }
-  if (newMovedCarIndex === -1) return true;
-
-  const car1Position = cars1[movedCarIndex];
-  const car2Position = cars2[newMovedCarIndex];
-
-  // Check move direction based on car's orientation.
-  if (isVertical(car1Position)) {
-    return car1Position[0][0] !== car2Position[0][0] && car1Position[0][1] === car2Position[0][1];
-  } else {
-    return car1Position[0][0] === car2Position[0][0] && car1Position[0][1] !== car2Position[0][1];
-  }
 }
 
 const initialCars = [
