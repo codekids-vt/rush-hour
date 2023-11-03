@@ -122,6 +122,7 @@ function isLegalMove(cars1: number[][][], cars2: number[][][]): boolean {
 
 const initialCars = [
   [[0, 0], [0, 1]],
+  [[5, 4], [5, 5]],
 ]
 
 function App() {

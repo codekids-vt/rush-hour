@@ -89,7 +89,7 @@ def draw_message(screen, message):
     screen.blit(text, (WIDTH + 50, 150))
     
 def main():
-    vid = cv2.VideoCapture(0)
+    vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     pygame.init()
     # allow windowed fullscreen mode
     screen = pygame.display.set_mode(
