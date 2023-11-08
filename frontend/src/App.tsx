@@ -3,7 +3,7 @@ import { Graph } from "./Graph";
 import { Grid } from "./Grid";
 import { isLegalMove } from "./legalMove/legalMove";
 
-function carsToGrid(cars: number[][][]): string[][] {
+function carsToGrid(cars: Record<string, number[][]>): string[][] {
   let grid: string[][] = []
 
   for (let i = 0; i < 6; i++) {
@@ -13,13 +13,13 @@ function carsToGrid(cars: number[][][]): string[][] {
     }
   }
 
-  if (cars.length === 0) {
+  if (Object.keys(cars).length === 0) {
     return grid
   }
 
-  for (let car of cars) {
-    for (let coord of car) {
-      grid[coord[0]][coord[1]] = 'red'
+  for (let car in cars) {
+    for (let coord of cars[car]) {
+      grid[coord[0]][coord[1]] = car
     }
   }
 
@@ -27,36 +27,31 @@ function carsToGrid(cars: number[][][]): string[][] {
 }
 
 // function to take a cars list and convert it to a id using a hash
-function carsToId(cars: number[][][]): number {
+function carsToId(cars: Record<string, number[][]>): number {
   let id = 0;
-
-  for (let i = 0; i < cars.length; i++) {
-    let car = cars[i];
-    for (let coord of car) {
-      // Convert x and y coordinates into a unique single number
+  for (let car in cars) {
+    id += parseInt(car) * Math.pow(9973, 2);
+    for (let coord of cars[car]) {
       let singleValue = coord[0] * 100 + coord[1];
-
-      // Use powers of a large prime number to make sure each car has a unique influence on the hash
-      id += singleValue * Math.pow(9973, i);
+      id += singleValue * Math.pow(9973, parseInt(car));
     }
   }
 
-  return id;
+  return id % Math.pow(2, 32);
 }
+
 const areCarsEqual = (car1: number[][], car2: number[][]): boolean => {
   return JSON.stringify(car1) === JSON.stringify(car2);
 };
 
-function carsEqual(cars1: number[][][], cars2: number[][][]): boolean {
-  if (cars1.length !== cars2.length) return false;
+function carsEqual(cars1: Record<string, number[][]>, cars2: Record<string, number[][]>): boolean {
+  if (Object.keys(cars1).length !== Object.keys(cars2).length) return false;
 
-  for (let i = 0; i < cars1.length; i++) {
+  for (let carId in cars1) {
     let foundMatch = false;
-    for (let j = 0; j < cars2.length; j++) {
-      if (areCarsEqual(cars1[i], cars2[j])) {
-        foundMatch = true;
-        break;
-      }
+    if (areCarsEqual(cars1[carId], cars2[carId])) {
+      foundMatch = true;
+      break;
     }
     if (!foundMatch) return false;
   }
@@ -64,17 +59,15 @@ function carsEqual(cars1: number[][][], cars2: number[][][]): boolean {
   return true;
 }
 
-const initialCars = [
-  [[0, 0], [0, 1]],
-  [[5, 4], [5, 5]],
-]
+const initialCars: Record<string, number[][]> = {
+  "red": [[0, 0], [0, 1]],
+  "blue": [[5, 4], [5, 5]],
+}
 
 function App() {
   const ws = React.useRef<WebSocket | null>(null);
-  const cars = React.useRef<number[][][]>(initialCars);
-  // const [states, setStates] = React.useState<number[]>([])
+  const cars = React.useRef<Record<string, number[][]>>(initialCars);
   const states = React.useRef<number[]>([carsToId(initialCars)]);
-  // const [stateTransitions, setStateTransitions] = React.useState<[number, number][]>([])
   const stateTransitions = React.useRef<[number, number][]>([])
   const [render, setRender] = React.useState<boolean>(false)
   const [message, setMessage] = React.useState<string | null>(null)
@@ -121,8 +114,6 @@ function App() {
       ws.current?.close();
     };
   }, []);
-
-  console.log(cars.current)
 
   let state = carsToId(cars.current)
   let grid = carsToGrid(cars.current)
