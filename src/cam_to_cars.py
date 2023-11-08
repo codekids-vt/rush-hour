@@ -144,7 +144,7 @@ def get_and_process_frame(vid: cv2.VideoCapture):
 def convert_color_map_to_cars(color_map: list[list]) -> list[list[list]]:
     # color_map is a 2d array of Color enums
     # returns a list of cars, where each car is a list of 2 points
-    cars = []
+    cars = {}
     for color in Color:
         if color == Color.WHITE:
             continue
@@ -172,6 +172,6 @@ def convert_color_map_to_cars(color_map: list[list]) -> list[list[list]]:
             car_point_2 = [car_point_1[0] + 1, car_point_1[1]]
 
         if car_point_1 and car_point_2:
-            cars.append([car_point_1, car_point_2])
+            cars[str(color)] = [car_point_1, car_point_2]
 
     return cars

@@ -1,4 +1,4 @@
-export function isLegalMove(cars1: number[][][], cars2: number[][][]): boolean {
+export function isLegalMove(cars1: Record<string, number[][]>, cars2: Record<string, number[][]>): boolean {
     // Assuming a 6x6 board
     const boardSize = 6;
 
@@ -45,45 +45,44 @@ export function isLegalMove(cars1: number[][][], cars2: number[][][]): boolean {
                 movedVertically = false;
             }
         }
-
         return (isHorizontal && movedHorizontally && !movedVertically) || (isVertical && !movedHorizontally && movedVertically);
     };
 
-    if (cars1.length !== cars2.length) {
+    if (Object.keys(cars1).length !== Object.keys(cars2).length) {
         return false; // Different number of cars means it's definitely an illegal move
     }
 
-    // Create a map of car2's positions for quick lookup
-    const cars2PositionsMap = new Map<string, number[][]>();
-    cars2.forEach(car => cars2PositionsMap.set(car.map(position => position.join(',')).join(';'), car));
+    // build a new map of cars2
+    const cars2Map = new Map(Object.entries(cars2));
 
-    let movedCar: number[][] | null = null;
-    for (const car1 of cars1) {
-        const car1Key = car1.map(position => position.join(',')).join(';');
-        const correspondingCar2 = cars2PositionsMap.get(car1Key);
-
-        if (!correspondingCar2) {
-            if (!movedCar) {
-                movedCar = car1;
-                continue;
-            } else {
-                return false; // More than one car moved
-            }
-
-        }
-        // Remove the found car from the map to ensure no two cars from cars1 map to the same car in cars2
-        cars2PositionsMap.delete(car1Key);
-    }
+    let movedCar: number[][] | undefined = undefined;
     let correspondingCar: number[][] | null = null;
+
+    // get the moved car and the corresponding car
+    for (const [key, car] of Object.entries(cars1)) {
+        if (!cars2Map.has(key)) {
+            return false; // cars1 has a car that cars2 doesn't have, so the move is illegal
+        }
+        if (JSON.stringify(car) !== JSON.stringify(cars2Map.get(key))) {
+            if (movedCar) {
+                return false; // cars1 has more than one car that moved, so the move is illegal
+            }
+            movedCar = car
+        } else {
+            cars2Map.delete(key);
+        }
+    }
+    console.log(movedCar);
+
     if (!movedCar) {
         return true; // No car moved, so the move is legal
     }
     // first check if only one car left in map
-    if (cars2PositionsMap.size !== 1) {
+    if (cars2Map.size !== 1) {
         return false;
     }
     // get corresponding car as last one in map
-    for (const car of cars2PositionsMap.values()) {
+    for (const car of cars2Map.values()) {
         correspondingCar = car;
     }
     // check if corresponding car is null
@@ -103,7 +102,7 @@ export function isLegalMove(cars1: number[][][], cars2: number[][][]): boolean {
 
     // At this point, we know that each car from cars1 has a corresponding car in cars2
     // Now check for overlap between correspondingCar and all other cars in cars2
-    for (const car of cars2) {
+    for (const car of Object.values(cars2)) {
         if (car === correspondingCar) {
             continue;
         }
