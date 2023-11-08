@@ -1,20 +1,66 @@
 import enum
 import cv2
 import numpy as np
-
+import webcolors
 
 class Color(enum.Enum):
     RED = 'red'
+    ORANGE = 'orange'
+    YELLOW = 'yellow'
+    GREEN = 'green'
     BLUE = 'blue'
+    PURPLE = 'purple'
     WHITE = 'white'
+    
+    def __str__(self):
+        return self.value
+    
+def closest_colour(requested_colour):
+    min_colours = {}
+    hex_colors = [
+        ('#FF0000', 'red'),
+        ('#FFA500', 'orange'),
+        ('#FFFF00', 'yellow'),
+        ('#008000', 'green'),
+        ('#0000FF', 'blue'),
+        ('#800080', 'purple'),
+        ('#FFFFFF', 'white')
+    ]
+    for key, name in hex_colors:
+        r_c, g_c, b_c = webcolors.hex_to_rgb(key)
+        rd = (r_c - requested_colour[0]) ** 2
+        gd = (g_c - requested_colour[1]) ** 2
+        bd = (b_c - requested_colour[2]) ** 2
+        min_colours[(rd + gd + bd)] = name
+    return min_colours[min(min_colours.keys())]
 
+def get_colour_name(requested_colour):
+    try:
+        closest_name = actual_name = webcolors.rgb_to_name(requested_colour)
+    except ValueError:
+        closest_name = closest_colour(requested_colour)
+        actual_name = None
+    return actual_name, closest_name
 
 def get_color(pixel) -> Color:
-    b, g, r = pixel
-    if r > 1.2 * g and r > 1.2 * b:
+    # make pixel is ints instead of floats
+    pixel = tuple(map(lambda x: int(x), pixel))
+    color = get_colour_name(pixel)[1]
+    print(color)
+    if color == 'red':
         return Color.RED
-    elif b > 1.2 * g and b > 1.2 * r:
+    elif color == 'orange':
+        return Color.ORANGE
+    elif color == 'yellow':
+        return Color.YELLOW
+    elif color == 'green':
+        return Color.GREEN
+    elif color == 'blue':
         return Color.BLUE
+    elif color == 'purple':
+        return Color.PURPLE
+    elif color == 'white':
+        return Color.WHITE
     else:
         return Color.WHITE
 
