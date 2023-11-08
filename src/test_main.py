@@ -1,6 +1,16 @@
 import pytest
-from main import convert_color_map_to_cars, Color, car_lists_equal
+import webcolors
+from cam_to_cars import car_lists_equal, closest_color, convert_color_map_to_cars, Color
 
+
+def test_closest_color():
+    test_colors = [
+        ("#ad180a", "red"),
+        ("#3056d1", "blue"),
+        ("#144d27", "green"),
+    ]
+    for color, expected in test_colors:
+        assert closest_color(webcolors.hex_to_rgb(color))[0] == expected
 
 def test_convert_color_map_to_cars():
     color_map = [

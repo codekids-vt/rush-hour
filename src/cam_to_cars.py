@@ -3,6 +3,29 @@ import cv2
 import numpy as np
 import webcolors
 
+
+def car_lists_equal(car_list1, car_list2):
+    # check inside the nested lists for equality
+    for car1 in car_list1:
+        car_found = False
+        for car2 in car_list2:
+            if car1[0] == car2[0] and car1[1] == car2[1] or car1[0] == car2[1] and car1[1] == car2[0]:
+                car_found = True
+                break
+        if not car_found:
+            return False
+    for car2 in car_list2:
+        car_found = False
+        for car1 in car_list1:
+            if car1[0] == car2[0] and car1[1] == car2[1] or car1[0] == car2[1] and car1[1] == car2[0]:
+                car_found = True
+                break
+        if not car_found:
+            return False
+
+    return True
+
+
 class Color(enum.Enum):
     RED = 'red'
     ORANGE = 'orange'
@@ -11,10 +34,10 @@ class Color(enum.Enum):
     BLUE = 'blue'
     PURPLE = 'purple'
     WHITE = 'white'
-    
+
     def __str__(self):
         return self.value
-    
+
 
 def closest_color(requested_color):
     min_colors = {}
@@ -29,26 +52,17 @@ def closest_color(requested_color):
     ]
     for key, name in hex_colors:
         r_c, g_c, b_c = webcolors.hex_to_rgb(key)
-        rd = (r_c - requested_color[0]) ** 2
-        gd = (g_c - requested_color[1]) ** 2
-        bd = (b_c - requested_color[2]) ** 2
-        min_colors[(rd + gd + bd)] = name
-    return min_colors[min(min_colors.keys())]
+        rd = (requested_color[2] - r_c) ** 2
+        gd = (requested_color[1] - g_c) ** 2
+        bd = (requested_color[0] - b_c) ** 2
+        distance = rd + gd + bd
+        min_colors[distance] = name
+    return min_colors[min(min_colors.keys())], min(min_colors.keys())
 
-
-def get_color_name(requested_color):
-    try:
-        closest_name = actual_name = webcolors.rgb_to_name(requested_color)
-    except ValueError:
-        closest_name = closest_color(requested_color)
-        actual_name = None
-    return actual_name, closest_name
 
 def get_color(pixel) -> Color:
-    # make pixel is ints instead of floats
     pixel = tuple(map(lambda x: int(x), pixel))
-    color = get_color_name(pixel)[1]
-    print(color)
+    color, confidence = closest_color(pixel)
     if color == 'red':
         return Color.RED
     elif color == 'orange':
@@ -67,7 +81,7 @@ def get_color(pixel) -> Color:
         return Color.WHITE
 
 
-def get_and_process_frame(vid):
+def get_and_process_frame(vid: cv2.VideoCapture):
     ret, frame = vid.read()
     # cut out the middle square of the frame
     height, width, _ = frame.shape

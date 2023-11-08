@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 import sys
 
-from cam_to_cars import convert_color_map_to_cars, get_and_process_frame
+from cam_to_cars import car_lists_equal, convert_color_map_to_cars, get_and_process_frame
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
@@ -45,29 +45,6 @@ def draw_next_button(screen):
     font = pygame.font.SysFont('Arial', 20)
     text = font.render('Next', True, (0, 0, 0))
     screen.blit(text, (WIDTH + 50 + 25, 50 + 15))
-    
-def car_lists_equal(car_list1, car_list2):
-    # check inside the nested lists for equality
-    for car1 in car_list1:
-        car_found = False
-        for car2 in car_list2:
-            if car1[0] == car2[0] and car1[1] == car2[1] or car1[0] == car2[1] and car1[1] == car2[0]:
-                car_found = True
-                break
-        if not car_found:
-            return False
-    for car2 in car_list2:
-        car_found = False
-        for car1 in car_list1:
-            if car1[0] == car2[0] and car1[1] == car2[1] or car1[0] == car2[1] and car1[1] == car2[0]:
-                car_found = True
-                break
-        if not car_found:
-            return False
-        
-    return True
-
-
 
 def handle_next_button_click(current_cars):
     # if board looks like the wanted board, then add one car from the start board to the wanted board
