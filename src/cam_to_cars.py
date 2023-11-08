@@ -15,8 +15,9 @@ class Color(enum.Enum):
     def __str__(self):
         return self.value
     
-def closest_colour(requested_colour):
-    min_colours = {}
+
+def closest_color(requested_color):
+    min_colors = {}
     hex_colors = [
         ('#FF0000', 'red'),
         ('#FFA500', 'orange'),
@@ -28,24 +29,25 @@ def closest_colour(requested_colour):
     ]
     for key, name in hex_colors:
         r_c, g_c, b_c = webcolors.hex_to_rgb(key)
-        rd = (r_c - requested_colour[0]) ** 2
-        gd = (g_c - requested_colour[1]) ** 2
-        bd = (b_c - requested_colour[2]) ** 2
-        min_colours[(rd + gd + bd)] = name
-    return min_colours[min(min_colours.keys())]
+        rd = (r_c - requested_color[0]) ** 2
+        gd = (g_c - requested_color[1]) ** 2
+        bd = (b_c - requested_color[2]) ** 2
+        min_colors[(rd + gd + bd)] = name
+    return min_colors[min(min_colors.keys())]
 
-def get_colour_name(requested_colour):
+
+def get_color_name(requested_color):
     try:
-        closest_name = actual_name = webcolors.rgb_to_name(requested_colour)
+        closest_name = actual_name = webcolors.rgb_to_name(requested_color)
     except ValueError:
-        closest_name = closest_colour(requested_colour)
+        closest_name = closest_color(requested_color)
         actual_name = None
     return actual_name, closest_name
 
 def get_color(pixel) -> Color:
     # make pixel is ints instead of floats
     pixel = tuple(map(lambda x: int(x), pixel))
-    color = get_colour_name(pixel)[1]
+    color = get_color_name(pixel)[1]
     print(color)
     if color == 'red':
         return Color.RED
