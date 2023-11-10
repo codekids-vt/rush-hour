@@ -61,7 +61,7 @@ function carsEqual(cars1: Record<string, number[][]>, cars2: Record<string, numb
 
 const initialCars: Record<string, number[][]> = {
   "red": [[0, 0], [0, 1]],
-  "blue": [[5, 4], [5, 5]],
+  "blue": [[5, 2], [5, 3], [5, 4]],
 }
 
 function App() {

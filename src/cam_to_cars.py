@@ -174,4 +174,14 @@ def convert_color_map_to_cars(color_map: list[list]) -> list[list[list]]:
         if car_point_1 and car_point_2:
             cars[str(color)] = [car_point_1, car_point_2]
 
+            # find a third if it exists
+            car_point_3 = None
+            if car_point_2[1] < len(color_map[car_point_2[0]]) - 1 and color_map[car_point_2[0]][car_point_2[1] + 1] == color:
+                car_point_3 = [car_point_2[0], car_point_2[1] + 1]
+            elif car_point_2[0] < len(color_map) - 1 and color_map[car_point_2[0] + 1][car_point_2[1]] == color:
+                car_point_3 = [car_point_2[0] + 1, car_point_2[1]]
+
+            if car_point_3:
+                cars[str(color)].append(car_point_3)
+
     return cars

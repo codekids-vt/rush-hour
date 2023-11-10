@@ -13,25 +13,6 @@ export function isLegalMove(cars1: Record<string, number[][]>, cars2: Record<str
         let isHorizontal = car1.every(position => position[0] === car1[0][0]);
         let isVertical = car1.every(position => position[1] === car1[0][1]);
 
-        // car2 must not be spread out all cells one space apart max
-        if (isHorizontal) {
-            const yValues = car2.map(position => position[1]);
-            const minY = Math.min(...yValues);
-            const maxY = Math.max(...yValues);
-            if (maxY - minY > 1) {
-                return false;
-            }
-        }
-        if (isVertical) {
-            const xValues = car2.map(position => position[0]);
-            const minX = Math.min(...xValues);
-            const maxX = Math.max(...xValues);
-            if (maxX - minX > 1) {
-                return false;
-            }
-        }
-
-
         // Cars must move in one direction, and the length must be the same
         // horizontal car example [[0, 0], [0, 1]]
         // if all x values are the same, then car moved horizontally
@@ -45,6 +26,7 @@ export function isLegalMove(cars1: Record<string, number[][]>, cars2: Record<str
                 movedVertically = false;
             }
         }
+
         return (isHorizontal && movedHorizontally && !movedVertically) || (isVertical && !movedHorizontally && movedVertically);
     };
 
@@ -72,7 +54,6 @@ export function isLegalMove(cars1: Record<string, number[][]>, cars2: Record<str
             cars2Map.delete(key);
         }
     }
-    console.log(movedCar);
 
     if (!movedCar) {
         return true; // No car moved, so the move is legal
@@ -107,7 +88,10 @@ export function isLegalMove(cars1: Record<string, number[][]>, cars2: Record<str
             continue;
         }
         // Check if any of the positions in correspondingCar overlap with any of the positions in car
-        const overlap = correspondingCar.some(position1 => car.some(position2 => position1[0] === position2[0] && position1[1] === position2[1]));
+        const flattenedAllPositions = correspondingCar.flat();
+        const flattenedCarPositions = car.flat();
+        const overlap = flattenedAllPositions.some(position => flattenedCarPositions.includes(position));
+
         if (overlap) {
             return false;
         }
