@@ -30,14 +30,17 @@ function carsToGrid(cars: Record<string, number[][]>): string[][] {
 function carsToId(cars: Record<string, number[][]>): number {
   let id = 0;
   for (let car in cars) {
-    id += parseInt(car) * Math.pow(9973, 2);
-    for (let coord of cars[car]) {
-      let singleValue = coord[0] * 100 + coord[1];
-      id += singleValue * Math.pow(9973, parseInt(car));
+    // convert json of car to a number through converting it to base16
+    let carString = JSON.stringify(cars[car])
+    let bytes = [];
+    for (let i = 0; i < carString.length; ++i) {
+      bytes.push(carString.charCodeAt(i));
     }
+    let carId = parseInt(bytes.join(''), 16)
+    // add the carId to the id
+    id += carId
   }
-
-  return id % Math.pow(2, 32);
+  return id;
 }
 
 const areCarsEqual = (car1: number[][], car2: number[][]): boolean => {
@@ -83,6 +86,7 @@ function App() {
       // Update states
       // if it is a new state
       if (isLegalMove(cars.current, data.cars)) {
+        console.log(`states.current: ${states.current}`)
         if (!states.current.includes(newCarsId)) {
           // check if a new transition is needed
           states.current.push(newCarsId)
@@ -117,7 +121,6 @@ function App() {
 
   let state = carsToId(cars.current)
   let grid = carsToGrid(cars.current)
-
 
   return (
     // tailwind that splits the screen into 2 columns
