@@ -14,7 +14,6 @@ export function Graph(props: IGraphProps) {
     const isCurrentState = props.state === state;
     return {
       id: state.toString(),
-      label: state.toString(),
       fill: isCurrentState ? 'red' : 'black',
     };
   });
