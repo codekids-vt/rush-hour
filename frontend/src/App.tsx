@@ -43,28 +43,10 @@ function carsToId(cars: Record<string, number[][]>): number {
   return id;
 }
 
-const areCarsEqual = (car1: number[][], car2: number[][]): boolean => {
-  return JSON.stringify(car1) === JSON.stringify(car2);
-};
-
-function carsEqual(cars1: Record<string, number[][]>, cars2: Record<string, number[][]>): boolean {
-  if (Object.keys(cars1).length !== Object.keys(cars2).length) return false;
-
-  for (let carId in cars1) {
-    let foundMatch = false;
-    if (areCarsEqual(cars1[carId], cars2[carId])) {
-      foundMatch = true;
-      break;
-    }
-    if (!foundMatch) return false;
-  }
-
-  return true;
-}
-
 const initialCars: Record<string, number[][]> = {
-  "red": [[0, 0], [0, 1]],
-  "blue": [[5, 2], [5, 3], [5, 4]],
+  "red": [[4, 4], [3, 4], [2, 4]],
+  "blue": [[5, 3], [5, 4], [5, 5]],
+  "green": [[2, 2], [2, 3]],
 }
 
 function App() {
@@ -86,7 +68,6 @@ function App() {
       // Update states
       // if it is a new state
       if (isLegalMove(cars.current, data.cars)) {
-        console.log(`states.current: ${states.current}`)
         if (!states.current.includes(newCarsId)) {
           // check if a new transition is needed
           states.current.push(newCarsId)
@@ -103,7 +84,7 @@ function App() {
 
         cars.current = data.cars;
         setMessage(null)
-      } else if (!carsEqual(cars.current, data.cars)) {
+      } else {
         setMessage("Illegal move, please put it back to the last position")
       }
 

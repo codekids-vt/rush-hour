@@ -9,27 +9,31 @@ app = FastAPI(title='WebSocket Example')
 
 sample_cars_lists = [
     {
-        "red": [[0, 0], [0, 1]],
+        "red": [[4, 4], [3, 4], [2, 4]],
         "blue": [[5, 3], [5, 4], [5, 5]],
+        "green": [[2, 2], [2, 3]],
     },
     {
-        "red": [[0, 0], [0, 1]],
+        "red": [[4, 4], [3, 4], [2, 4]],
         "blue": [[5, 2], [5, 3], [5, 4]],
+        "green": [[2, 2], [2, 3]],
     },
-    # {
-    #     "red": [[0, 1], [0, 2]],
-    #     "blue": [[5, 4], [5, 5]],
-    # },
-    # {
-    #     "red": [[0, 0], [0, 1]],
-    #     "blue": [[5, 3], [5, 4]],
-    # }
+    {
+        "red": [[3, 4], [2, 4], [1, 4]],
+        "blue": [[5, 2], [5, 3], [5, 4]],
+        "green": [[2, 2], [2, 3]],
+    },
+    {
+        "red": [[3, 4], [2, 4], [1, 4]],
+        "blue": [[5, 2], [5, 3], [5, 4]],
+        "green": [[2, 3], [2, 4]],
+    },
 ]
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     print('a new websocket to create.')
-    vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    # vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
     await websocket.accept()
     i = 0

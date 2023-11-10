@@ -1,6 +1,9 @@
 export function isLegalMove(cars1: Record<string, number[][]>, cars2: Record<string, number[][]>): boolean {
     // Assuming a 6x6 board
     const boardSize = 6;
+    if (JSON.stringify(cars1) === JSON.stringify(cars2)) {
+        return true;
+    }
 
     // Helper function to check if a car is within the bounds of the board
     const isWithinBounds = (car: number[][]): boolean => {
@@ -35,35 +38,42 @@ export function isLegalMove(cars1: Record<string, number[][]>, cars2: Record<str
     }
 
     // build a new map of cars2
-    const cars2Map = new Map(Object.entries(cars2));
+    console.log(`cars2: ${JSON.stringify(cars2)}`);
+    const cars2Map = { ...cars2 };
+    console.log(`cars2Map: ${JSON.stringify(cars2Map)}`);
 
     let movedCar: number[][] | undefined = undefined;
     let correspondingCar: number[][] | null = null;
 
     // get the moved car and the corresponding car
     for (const [key, car] of Object.entries(cars1)) {
-        if (!cars2Map.has(key)) {
+        console.log(`key: ${key} car: ${car}`);
+        if (!cars2Map[key]) {
+            console.log(`cars2Map[key]: ${cars2Map[key]}`);
             return false; // cars1 has a car that cars2 doesn't have, so the move is illegal
         }
-        if (JSON.stringify(car) !== JSON.stringify(cars2Map.get(key))) {
+        if (JSON.stringify(car) !== JSON.stringify(cars2Map[key])) {
+            console.log(`JSON.stringify(car) !== JSON.stringify(cars2Map[key]): ${JSON.stringify(car)} ${JSON.stringify(cars2Map[key])}`);
             if (movedCar) {
                 return false; // cars1 has more than one car that moved, so the move is illegal
             }
             movedCar = car
         } else {
-            cars2Map.delete(key);
+            delete cars2Map[key];
         }
     }
 
+    console.log(`movedCar: ${movedCar}`);
     if (!movedCar) {
         return true; // No car moved, so the move is legal
     }
     // first check if only one car left in map
-    if (cars2Map.size !== 1) {
+    console.log(`Object.keys(cars2Map).length: ${Object.keys(cars2Map).length}`);
+    if (Object.keys(cars2Map).length !== 1) {
         return false;
     }
     // get corresponding car as last one in map
-    for (const car of cars2Map.values()) {
+    for (const car of Object.values(cars2Map)) {
         correspondingCar = car;
     }
     // check if corresponding car is null
@@ -71,6 +81,7 @@ export function isLegalMove(cars1: Record<string, number[][]>, cars2: Record<str
         return false;
     }
 
+    console.log(`movedCar: ${movedCar} correspondingCar: ${correspondingCar}`);
     // If the car didn't move legally (in one direction), the move is illegal
     if (!carMovedLegally(movedCar, correspondingCar)) {
         return false;
@@ -83,18 +94,18 @@ export function isLegalMove(cars1: Record<string, number[][]>, cars2: Record<str
 
     // At this point, we know that each car from cars1 has a corresponding car in cars2
     // Now check for overlap between correspondingCar and all other cars in cars2
-    for (const car of Object.values(cars2)) {
-        if (car === correspondingCar) {
-            continue;
-        }
-        // Check if any of the positions in correspondingCar overlap with any of the positions in car
-        const flattenedAllPositions = correspondingCar.flat();
-        const flattenedCarPositions = car.flat();
-        const overlap = flattenedAllPositions.some(position => flattenedCarPositions.includes(position));
+    // Check if any of the positions in correspondingCar overlap with any of the positions in car
+    const overlap = correspondingCar.some(position1 => {
+        return Object.values(cars2).filter(car => car !== correspondingCar).some(car => {
+            return car.some(position2 => {
+                return position1[0] === position2[0] && position1[1] === position2[1];
+            });
+        });
+    });
 
-        if (overlap) {
-            return false;
-        }
+    if (overlap) {
+        console.log(`overlap: ${overlap}`);
+        return false;
     }
 
     return true;
