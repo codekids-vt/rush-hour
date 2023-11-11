@@ -83,6 +83,8 @@ def get_color(pixel) -> Color:
 
 def get_and_process_frame(vid: cv2.VideoCapture):
     ret, frame = vid.read()
+    # flip the frame vertically
+    frame = cv2.flip(frame, 0)
     # cut out the middle square of the frame
     height, width, _ = frame.shape
     board_size = min(height, width)
