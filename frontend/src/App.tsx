@@ -44,8 +44,8 @@ function carsToId(cars: Record<string, number[][]>): number {
 }
 
 const initialCars: Record<string, number[][]> = {
-  "red": [[4, 4], [3, 4], [2, 4]],
-  "blue": [[5, 3], [5, 4], [5, 5]],
+  "red": [[4, 4], [3, 4]],
+  "blue": [[5, 3], [5, 4]],
   "green": [[2, 2], [2, 3]],
 }
 

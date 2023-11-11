@@ -42,13 +42,13 @@ class Color(enum.Enum):
 def closest_color(requested_color):
     min_colors = {}
     hex_colors = [
-        ('#FF0000', 'red'),
-        ('#FFA500', 'orange'),
+        ('#80494b', 'red'),
+        ('#905f4b', 'orange'),
         ('#FFFF00', 'yellow'),
-        ('#008000', 'green'),
-        ('#0000FF', 'blue'),
-        ('#800080', 'purple'),
-        ('#FFFFFF', 'white')
+        ('#535d47', 'green'),
+        ('#343266', 'blue'),
+        ('#887c95', 'purple'),
+        ('#aaafaf', 'white')
     ]
     for key, name in hex_colors:
         r_c, g_c, b_c = webcolors.hex_to_rgb(key)
