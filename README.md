@@ -23,6 +23,8 @@ Options to differentiate cars
 
 Choose to go with different colors since it will be the easiest to implement.
 
+![setup](https://github.com/kidata-summer-2023/rush-hour/assets/22966838/e4cf57a2-bc62-44a5-8c6f-c71b4546adc1)
+
 ## Software
 
 - websocket and react graph vis
