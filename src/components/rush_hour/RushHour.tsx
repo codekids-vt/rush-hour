@@ -1,33 +1,7 @@
 import React, { useState } from "react";
-import { Grid } from "../grid";
 import { Graph } from "../graph";
-import { Car as CarComponent } from "../car";
-import Draggable from "react-draggable"; // The default
-
-function carsToGrid(cars: Car[]): string[][] {
-  let grid: string[][] = [];
-
-  for (let i = 0; i < 6; i++) {
-    grid.push([]);
-    for (let j = 0; j < 6; j++) {
-      grid[i].push("white");
-    }
-  }
-
-  for (let car of cars) {
-    if (car.vertical) {
-      for (let i = 0; i < car.length; i++) {
-        grid[car.x][car.y + i] = car.color;
-      }
-    } else {
-      for (let i = 0; i < car.length; i++) {
-        grid[car.x + i][car.y] = car.color;
-      }
-    }
-  }
-
-  return grid;
-}
+import Draggable, { DraggableData, DraggableEvent } from "react-draggable"; // The default
+import { isLegalMove } from "../../isLegalMove";
 
 // function to take a cars list and convert it to a id using a hash
 function carsToId(cars: Car[]): string {
@@ -47,8 +21,8 @@ function carsToId(cars: Car[]): string {
 }
 
 const initialCars: Car[] = [
-  { x: 0, y: 4, vertical: true, length: 3, color: "red" },
-  { x: 5, y: 3, vertical: false, length: 2, color: "blue" },
+  { x: 0, y: 2, vertical: true, length: 3, color: "red" },
+  { x: 4, y: 3, vertical: false, length: 2, color: "blue" },
   { x: 2, y: 2, vertical: true, length: 2, color: "green" },
 ];
 
@@ -85,13 +59,29 @@ export default function RushHour() {
     }
   }
 
-  if (false) {
-    setNewCarsState(cars);
+  const cellWidth = 63.333;
+
+  function handleDragStop(e: DraggableEvent, data: DraggableData) {
+    // console.log(data);
+    let oldCar = JSON.parse(data.node.id);
+    // console.log(oldCar);
+    const x = Math.round(data.x / cellWidth);
+    const y = Math.round(data.y / cellWidth);
+    let newCar = { ...oldCar, x, y };
+    // console.log(newCar);
+    // console.log("legal move", isLegalMove(cars, oldCar, newCar));
+    if (isLegalMove(cars, oldCar, newCar)) {
+      let newCars = cars.map((car) =>
+        car.x === oldCar.x && car.y === oldCar.y ? newCar : car,
+      );
+      setNewCarsState(newCars);
+    } else {
+      // trigger a rerender so the draggable goes back to the original position
+      setCars([...cars]);
+    }
   }
 
-  function attemptMove(car: Car) {
-    return true;
-  }
+  console.log("cars in state", cars);
 
   return (
     <div className="flex flex-row flex-1 items-center px-2 gap-4 h-full w-full">
@@ -110,45 +100,48 @@ export default function RushHour() {
         <div className="relative grid grid-cols-6 aspect-square w-96 h-96 grid-rows-6 justify-between gap-1 bg-black p-1">
           {grid.map((row, i) =>
             row.map((_, j) => (
-              <div
-                key={`${i}-${j}`}
-                // to handle white, we need to add a bg-white class
-                className={`bg-white aspect-square`}
-              />
+              <div key={`${i}-${j}`} className={`bg-white aspect-square`}>
+                {/* {j},{i} */}
+              </div>
             )),
           )}
           {cars.map((car, i) => {
-            const cellWidth = 63.333;
             const inset = 4;
             const carWidth =
               (car.vertical ? cellWidth : cellWidth * car.length) - inset * 2;
             const carHeight =
               (car.vertical ? cellWidth * car.length : cellWidth) - inset * 2;
-            const topBound = car.vertical ? 0 : 6 - car.length;
+
+            const carUnitWidth = car.vertical ? 1 : car.length;
+            const carUnitHeight = car.vertical ? car.length : 1;
+
+            // console.log(car, carUnitWidth, carUnitHeight);
 
             return (
               <Draggable
+                key={i}
                 axis={car.vertical ? "y" : "x"}
                 handle=".handle"
                 grid={[cellWidth, cellWidth]}
                 scale={1}
-                // defaultPosition={{ x: car.x * 63, y: car.y * 63 }}
-                // bounds={{ left: 0, top: 0, right: 6, bottom: 6 }}
-                // onStart={this.handleStart}
-                // onDrag={this.handleDrag}
-                // onStop={this.handleStop}
+                position={{ x: car.x * cellWidth, y: car.y * cellWidth }}
+                bounds={{
+                  left: 0,
+                  top: 0,
+                  right: cellWidth * (6 - carUnitWidth),
+                  bottom: cellWidth * (6 - carUnitHeight),
+                }}
+                onStop={handleDragStop}
               >
                 <div
-                  className={`absolute bg-red-500 handle rounded-xl`}
+                  className={`absolute bg-${car.color}-500 handle rounded-xl`}
                   style={{
                     width: carWidth,
                     height: carHeight,
-                    // width: carWidth - 8,
-                    // height: carHeight - 8,
                     top: 2 + inset,
                     left: 2 + inset,
                   }}
-                  key={i}
+                  id={JSON.stringify(car)}
                 ></div>
               </Draggable>
             );
