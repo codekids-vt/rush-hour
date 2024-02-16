@@ -12,12 +12,16 @@
     "@storybook/addon-interactions": "^7.6.15",
     "@storybook/addon-links": "^7.6.15",
     "@storybook/addon-onboarding": "^1.0.11",
+    "@storybook/addon-themes": "^7.6.16",
     "@storybook/blocks": "^7.6.15",
     "@storybook/react": "^7.6.15",
     "@storybook/react-vite": "^7.6.15",
     "@storybook/test": "^7.6.15",
     "@types/bun": "latest",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
     "react-dom": "^18.2.0",
+    "tailwindcss": "^3.4.1",
     "vite": "^5.1.2",
     "vite-plugin-dts": "^3.7.2"
   },
@@ -25,7 +29,7 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "tsc && tailwindcss -i ./src/index.css -o ./src/output.css && vite build",
     "format": "prettier --write --parser typescript '**/*.{ts,tsx}'",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -34,6 +38,8 @@
     "@types/react": "^18.2.55",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
-    "storybook": "^7.6.15"
+    "reagraph": "^4.15.10",
+    "storybook": "^7.6.15",
+    "ts-node": "^10.9.2"
   }
 }
