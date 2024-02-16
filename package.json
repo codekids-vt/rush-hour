@@ -29,7 +29,8 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "build": "tsc && tailwindcss -i ./src/index.css -o ./src/output.css && vite build",
+    "build": "tsc && vite build",
+    "style": "tailwindcss -i ./src/index.css -o ./src/output.css --watch",
     "format": "prettier --write --parser typescript '**/*.{ts,tsx}'",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -38,6 +39,7 @@
     "@types/react": "^18.2.55",
     "prettier": "^3.2.5",
     "react": "^18.2.0",
+    "react-draggable": "^4.4.6",
     "reagraph": "^4.15.10",
     "storybook": "^7.6.15",
     "ts-node": "^10.9.2"

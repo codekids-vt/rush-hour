@@ -5,19 +5,5 @@ type Props = {
 
 export default function Car({ car, attemptMove }: Props) {
   // for now a form to move car for testing
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        let newCar = { ...car };
-        attemptMove(newCar);
-      }}
-    >
-      <input type="number" name="x" />
-      <input type="number" name="y" />
-      {/* actually call the fn */}
-
-      <button type="submit">Move</button>
-    </form>
-  );
+  return <div className="bg-red-500 ">Car</div>;
 }

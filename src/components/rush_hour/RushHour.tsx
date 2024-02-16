@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Grid } from "../grid";
 import { Graph } from "../graph";
 import { Car as CarComponent } from "../car";
+import Draggable from "react-draggable"; // The default
 
 function carsToGrid(cars: Car[]): string[][] {
   let grid: string[][] = [];
@@ -46,8 +47,8 @@ function carsToId(cars: Car[]): string {
 }
 
 const initialCars: Car[] = [
-  { x: 4, y: 4, vertical: true, length: 2, color: "red" },
-  { x: 5, y: 3, vertical: true, length: 2, color: "blue" },
+  { x: 0, y: 4, vertical: true, length: 3, color: "red" },
+  { x: 5, y: 3, vertical: false, length: 2, color: "blue" },
   { x: 2, y: 2, vertical: true, length: 2, color: "green" },
 ];
 
@@ -75,7 +76,14 @@ export default function RushHour() {
   }
 
   let state = carsToId(cars);
-  let grid = carsToGrid(cars);
+
+  let grid: string[][] = [];
+  for (let i = 0; i < 6; i++) {
+    grid.push([]);
+    for (let j = 0; j < 6; j++) {
+      grid[i].push("white");
+    }
+  }
 
   if (false) {
     setNewCarsState(cars);
@@ -99,9 +107,9 @@ export default function RushHour() {
         </div>
       </div>
       <div className="grid grid-cols-2 h-full w-full">
-        <div className="grid grid-cols-6 aspect-square grid-rows-6 justify-between gap-1 bg-black p-1">
+        <div className="relative grid grid-cols-6 aspect-square w-96 h-96 grid-rows-6 justify-between gap-1 bg-black p-1">
           {grid.map((row, i) =>
-            row.map((cell, j) => (
+            row.map((_, j) => (
               <div
                 key={`${i}-${j}`}
                 // to handle white, we need to add a bg-white class
@@ -109,10 +117,42 @@ export default function RushHour() {
               />
             )),
           )}
+          {cars.map((car, i) => {
+            const cellWidth = 63.333;
+            const inset = 4;
+            const carWidth =
+              (car.vertical ? cellWidth : cellWidth * car.length) - inset * 2;
+            const carHeight =
+              (car.vertical ? cellWidth * car.length : cellWidth) - inset * 2;
+            const topBound = car.vertical ? 0 : 6 - car.length;
 
-          {cars.map((car, i) => (
-            <CarComponent key={i} car={car} attemptMove={attemptMove} />
-          ))}
+            return (
+              <Draggable
+                axis={car.vertical ? "y" : "x"}
+                handle=".handle"
+                grid={[cellWidth, cellWidth]}
+                scale={1}
+                // defaultPosition={{ x: car.x * 63, y: car.y * 63 }}
+                // bounds={{ left: 0, top: 0, right: 6, bottom: 6 }}
+                // onStart={this.handleStart}
+                // onDrag={this.handleDrag}
+                // onStop={this.handleStop}
+              >
+                <div
+                  className={`absolute bg-red-500 handle rounded-xl`}
+                  style={{
+                    width: carWidth,
+                    height: carHeight,
+                    // width: carWidth - 8,
+                    // height: carHeight - 8,
+                    top: 2 + inset,
+                    left: 2 + inset,
+                  }}
+                  key={i}
+                ></div>
+              </Draggable>
+            );
+          })}
         </div>
         <div className="flex flex-col items-center bg-white">
           <div className="text-2xl text-center h-12">{message}</div>
