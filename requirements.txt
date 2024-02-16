@@ -1,5 +1,0 @@
-opencv-python
-pygame
-fastapi
-uvicorn[standard]
-webcolors
