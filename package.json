@@ -1,5 +1,6 @@
 {
   "name": "@codekids-vt/rush-hour",
+  "version": "0.0.1",
   "module": "dist/index.es.js",
   "main": "dist/index.cjs.js",
   "type": "module",
