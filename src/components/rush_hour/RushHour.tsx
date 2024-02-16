@@ -64,6 +64,10 @@ export default function RushHour() {
     const x = Math.round(data.x / cellWidth);
     const y = Math.round(data.y / cellWidth);
     let newCar = { ...oldCar, x, y };
+    // if the same do nothing
+    if (oldCar.x === newCar.x && oldCar.y === newCar.y) {
+      return;
+    }
     if (isLegalMove(cars, oldCar, newCar)) {
       let newCars = cars.map((car) =>
         car.x === oldCar.x && car.y === oldCar.y ? newCar : car,
