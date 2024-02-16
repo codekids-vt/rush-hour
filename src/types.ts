@@ -7,3 +7,4 @@ type Car = {
 };
 
 type stateId = string;
+type stateIdPair = string;

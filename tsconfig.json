@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES5", // Specifies the JavaScript version to target when transpiling code.
+    "target": "ES2015", // Specifies the JavaScript version to target when transpiling code.
     "useDefineForClassFields": true, // Enables the use of 'define' for class fields.
     "lib": [
       "ES2020",

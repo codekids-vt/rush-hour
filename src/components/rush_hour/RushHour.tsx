@@ -5,19 +5,11 @@ import { isLegalMove } from "../../isLegalMove";
 
 // function to take a cars list and convert it to a id using a hash
 function carsToId(cars: Car[]): string {
-  let id = 0;
-  for (let car in cars) {
-    // convert json of car to a number through converting it to base16
-    let carString = JSON.stringify(cars[car]);
-    let bytes = [];
-    for (let i = 0; i < carString.length; ++i) {
-      bytes.push(carString.charCodeAt(i));
-    }
-    let carId = parseInt(bytes.join(""), 16);
-    // add the carId to the id
-    id += carId;
-  }
-  return id.toString();
+  // create string based on all cars sorted by x then y always
+  return cars
+    .map((car) => `${car.x}-${car.y}-${car.vertical ? "v" : "h"}-${car.length}`)
+    .sort()
+    .join(",");
 }
 
 const initialCars: Car[] = [
@@ -35,16 +27,22 @@ export default function RushHour() {
     [stateId, stateId][]
   >([]);
   const [message, _] = React.useState<string | null>(null);
+  const [transitionsEdges, setTransitionsEdges] = useState<
+    Record<stateIdPair, [stateId, stateId]>
+  >({});
 
   function setNewCarsState(newCars: Car[]) {
     // utility to update cars, states, and stateTransitions at the same time
+    const lastState = carsToId(cars);
+    const newState = carsToId(newCars);
     setStates((states) => {
-      const id = carsToId(newCars);
-      return { ...states, [id]: newCars };
+      return { ...states, [newState]: newCars };
     });
     setStateTransitions((transitions) => {
-      const lastState = carsToId(cars);
-      return [...transitions, [lastState, carsToId(newCars)]];
+      return [...transitions, [lastState, newState]];
+    });
+    setTransitionsEdges((edges) => {
+      return { ...edges, [`${lastState}-${newState}`]: [lastState, newState] };
     });
     setCars(newCars);
   }
@@ -61,15 +59,11 @@ export default function RushHour() {
 
   const cellWidth = 63.333;
 
-  function handleDragStop(e: DraggableEvent, data: DraggableData) {
-    // console.log(data);
+  function handleDragStop(_: DraggableEvent, data: DraggableData) {
     let oldCar = JSON.parse(data.node.id);
-    // console.log(oldCar);
     const x = Math.round(data.x / cellWidth);
     const y = Math.round(data.y / cellWidth);
     let newCar = { ...oldCar, x, y };
-    // console.log(newCar);
-    // console.log("legal move", isLegalMove(cars, oldCar, newCar));
     if (isLegalMove(cars, oldCar, newCar)) {
       let newCars = cars.map((car) =>
         car.x === oldCar.x && car.y === oldCar.y ? newCar : car,
@@ -81,7 +75,10 @@ export default function RushHour() {
     }
   }
 
-  console.log("cars in state", cars);
+  console.log("cars", cars);
+  console.log("state", state);
+  console.log("states", states);
+  console.log("stateTransitions", stateTransitions);
 
   return (
     <div className="flex flex-row flex-1 items-center px-2 gap-4 h-full w-full">
@@ -153,7 +150,7 @@ export default function RushHour() {
           <Graph
             state={state}
             states={states}
-            stateTransitions={stateTransitions}
+            stateTransitions={transitionsEdges}
           />
         </div>
       </div>
