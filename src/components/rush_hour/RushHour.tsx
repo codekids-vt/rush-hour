@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Graph } from "../graph";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable"; // The default
 import { isLegalMove } from "../../isLegalMove";
@@ -26,7 +26,7 @@ export default function RushHour() {
   const [stateTransitions, setStateTransitions] = useState<
     [stateId, stateId][]
   >([]);
-  const [message, _] = React.useState<string | null>(null);
+  const [message, _] = useState<string | null>(null);
   const [transitionsEdges, setTransitionsEdges] = useState<
     Record<stateIdPair, [stateId, stateId]>
   >({});
