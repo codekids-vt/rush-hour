@@ -233,19 +233,19 @@ export default function RushHour() {
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
             onClick={() => load_new_level(1)}
           >
-            Beginner
+            Beginner {/*1*/}
           </button>
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-yellow-400"
             onClick={() => load_new_level(2)}
           >
-            Intermediate 
+            Intermediate {/*11*/}
           </button>
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-blue-400"
             onClick={() => load_new_level(3)}
           >
-            Advanced
+            Advanced {/*21*/}
           </button>
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-red-400"
