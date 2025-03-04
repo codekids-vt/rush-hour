@@ -1,3 +1,10 @@
+/*
+orange and gray don't render all the time I don't know why
+can still drag and move them (you can see the graph change)
+they just don't show on screen I'm not sure if it's a problem 
+with my computer because I've been having issues with it or
+if it's a problem with the app 
+*/
 export const levels : Car[][] = [[ //intro
   { x: 0, y: 2, vertical: false, length: 2, color: "red" },
   { x: 4, y: 1, vertical: true, length: 3, color: "blue" },
