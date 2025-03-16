@@ -21,8 +21,8 @@ const initialCars: Car[] = [
 
 const initialStates = { [carsToId(initialCars)]: initialCars };
 let previousState : Car[] = initialCars;
-let levelComplete : boolean = false;
-let selecting_level : boolean = false;
+//let levelComplete : boolean = false;
+//let selecting_level : boolean = false;
 let currentLevel : number = 0;
 
 export default function RushHour() {
@@ -35,6 +35,8 @@ export default function RushHour() {
   const [transitionsEdges, setTransitionsEdges] = useState<
     Record<stateIdPair, [stateId, stateId]>
   >({});
+  const [levelComplete, setLevelComplete] = useState(false);
+  const [selecting_level, setSelectingLevel] = useState(false);
 
   function setNewCarsState(newCars: Car[]) {
     // utility to update cars, states, and stateTransitions at the same time
@@ -76,12 +78,12 @@ export default function RushHour() {
     
   function load_new_level(levelNum : number) {
     //need to clear graph and stuff
-    levelComplete = false;
+    setLevelComplete(false);
     setCars(levels[levelNum]);
     resetGraph(levelNum);
     previousState = levels[levelNum];
     currentLevel = levelNum;
-    selecting_level = true;
+    setSelectingLevel(true);
   }
 
   let state = carsToId(cars);
@@ -114,8 +116,8 @@ export default function RushHour() {
       // Check if the red car is at the exit
       const redCar = newCars[0];
       if (redCar.x === 4 && redCar.y === 2 && !redCar.vertical) {
-        levelComplete = true;
-        selecting_level = false;
+        setLevelComplete(true);
+        setSelectingLevel(false);
         //console.log("Congratulations! You've reached the exit!");
       }
     } else {
@@ -282,8 +284,8 @@ export default function RushHour() {
             <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
             onClick={() => {
-              levelComplete = false;
-              selecting_level = false;
+              setLevelComplete(false);
+              setSelectingLevel(false);
             }}
           >
             Start
