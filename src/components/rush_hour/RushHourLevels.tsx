@@ -59,5 +59,5 @@ export const levels : Car[][] = [[ //intro
     { x: 0, y: 1, vertical: true, length: 2, color: "yellow" }, 
 //    { x: 4, y: 0, vertical: true, length: 3, color: "orange" }, //700
 //    { x: 0, y: 1, vertical: true, length: 2, color: "orange" }, //700
-    { x: 3, y: 4, vertical: false, length: 2, color: "gray" },
+    { x: 3, y: 4, vertical: false, length: 2, color: "pink" },
   ]]

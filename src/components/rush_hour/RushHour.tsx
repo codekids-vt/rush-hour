@@ -148,6 +148,23 @@ export default function RushHour() {
           >
             Restart
           </button>
+          <button
+            className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
+            onClick={() => {
+              setLevelComplete(true);
+              setSelectingLevel(false);
+            }}
+          >
+            Select different level
+          </button>
+          <button
+            className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
+            onClick={() => {
+//implement this next
+            }}
+          >
+            Set custom board
+          </button>
         </div>
       </div>
       {/* grid holding game and graph*/}
