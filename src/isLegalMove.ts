@@ -100,3 +100,57 @@ export function isLegalMove(cars: Car[], car: Car, newCar: Car): boolean {
 
     return true;
 }
+
+export function canPlaceCustom(x : number, y : number, length : number, horizontal: boolean): boolean {
+    if (x >= 0 && x <= 3 && y >= 0 && y <= 3) { //in general
+        return true;
+    } else if (length === 2) {
+        console.log("Length:", length, ", ", x, ", ", y, ", ", horizontal);
+        if (horizontal) {
+            if (x <= 4 && y >= 0 && y <= 5) {
+                return true;
+            }
+        } else { //vertical
+            if (y <= 4 && x >= 0 && x <= 5) {
+                return true;
+            }
+        }
+    } else if (length === 3) {
+        console.log("Length:", length, ", ", x, ", ", y, ", ", horizontal);
+        if (horizontal) {
+            console.log("horizontal true");
+            if (x <= 3 && y >= 0 && y <= 5) {
+                console.log("return true");
+                return true;
+            }
+        } else { //vertical
+            if (y <= 3 && x >= 0 && x <= 5) {
+                console.log("return true");
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export function isLegalCustomMove(cars: Car[], car: Car, newCar: Car) : boolean {
+    // get all cars but the car being moved
+    const otherCars = cars.filter((otherCar) => otherCar.x !== car.x || otherCar.y !== car.y);
+    // check that the cars are not overlapping with the newCar
+
+    if (otherCars.some((otherCar) => carsOverlap(newCar, otherCar))) {
+        return false;
+    }
+
+    // check that the car is not going off the board
+    let newCarCells = Array.from({ length: newCar.length }, (_, i) => {
+        return newCar.vertical ? { x: newCar.x, y: newCar.y + i } : { x: newCar.x + i, y: newCar.y };
+    });
+
+    if (newCarCells.some((cell) => cell.x < 0 || cell.x >= 6 || cell.y < 0 || cell.y >= 6)) {
+        return false;
+    }
+
+    return true;
+}

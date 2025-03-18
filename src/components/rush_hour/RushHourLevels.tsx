@@ -5,6 +5,8 @@ they just don't show on screen I'm not sure if it's a problem
 with my computer because I've been having issues with it or
 if it's a problem with the app 
 */
+export const custom_level : Car[] = [{ x: 0, y: 2, vertical: false, length: 2, color: "red" }]
+
 export const levels : Car[][] = [[ //intro
   { x: 0, y: 2, vertical: false, length: 2, color: "red" },
   { x: 4, y: 1, vertical: true, length: 3, color: "blue" },
