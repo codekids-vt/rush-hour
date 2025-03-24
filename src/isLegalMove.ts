@@ -101,7 +101,14 @@ export function isLegalMove(cars: Car[], car: Car, newCar: Car): boolean {
     return true;
 }
 
-export function canPlaceCustom(x : number, y : number, length : number, horizontal: boolean): boolean {
+export function canPlaceCustom(cars : Car[], x : number, y : number, length : number, horizontal: boolean): boolean {
+    const placedCar = { x: x, y: y, vertical: !horizontal, length: length, color: "green" };
+    const overlaps = customOverlaps(cars, placedCar);
+    console.log("Cars overlap:", overlaps);
+    if (overlaps) {
+        return false;
+    }
+    
     if (x >= 0 && x <= 3 && y >= 0 && y <= 3) { //in general
         return true;
     } else if (length === 2) {
@@ -131,6 +138,57 @@ export function canPlaceCustom(x : number, y : number, length : number, horizont
         }
     }
 
+    return false;
+}
+
+function customOverlaps(cars: Car[], placedCar: Car): boolean {
+    for (const carOnBoard of cars) {
+        if(carOnBoard.vertical && placedCar.vertical) {
+            const y1 = carOnBoard.y;
+            const yl1 = carOnBoard.y + carOnBoard.length;
+            const y2 = placedCar.y;
+            const yl2 = placedCar.y + placedCar.length;
+            
+            //x's are equal and top or bottom y's aren't the same
+            if (carOnBoard.x == placedCar.x && y1 != y2 && yl1 != yl2) {
+                if (!(Math.min(yl1, yl2) > Math.max(y1, y2))) { //top of bottom car is higher up than bottom of top car (overlap) 
+                    return true;
+                }
+            }
+        } else if(carOnBoard.vertical && !placedCar.vertical) {
+            const x_overlap = (carOnBoard.x >= placedCar.x && carOnBoard.x < placedCar.x + placedCar.length);
+            const y_overlap = (placedCar.y >= carOnBoard.y && placedCar.y < carOnBoard.y + carOnBoard.length);
+
+            //x's are equal and top or bottom y's aren't the same
+            if (x_overlap && y_overlap) {
+                return true;
+            }
+        } else if(!carOnBoard.vertical && placedCar.vertical) {
+            const x_overlap = (placedCar.x >= carOnBoard.x && placedCar.x < carOnBoard.x + carOnBoard.length);
+            const y_overlap = (carOnBoard.y >= placedCar.y && carOnBoard.y < placedCar.y + placedCar.length);
+            console.log(placedCar.x + ", " + carOnBoard.x);
+            console.log("X_overlap:", x_overlap);
+            console.log("y_console:", y_overlap);
+
+            //x's are equal and top or bottom y's aren't the same
+            if (x_overlap && y_overlap) {
+                return true;
+            }
+        } else {
+            const x1 = carOnBoard.y;
+            const xl1 = carOnBoard.y + carOnBoard.length;
+            const x2 = placedCar.y;
+            const xl2 = placedCar.y + placedCar.length;
+            
+            //x's are equal and top or bottom y's aren't the same
+            if (carOnBoard.y == placedCar.y && x1 != x2 && xl1 != xl2) {
+                if (!(Math.min(xl1, xl2) > Math.max(x1, x2))) { //top of bottom car is higher up than bottom of top car (overlap) 
+                    return true;
+                }
+            }
+        }
+    }
+    
     return false;
 }
 

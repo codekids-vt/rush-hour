@@ -126,13 +126,13 @@ export default function RushHour() {
     ) { //mouse over grid
       if (smallCustomCarVisible) {      
         setCustomCarPlaced(true);
-        if (canPlaceCustom(Math.floor((mousePosition.x - 230) / 63), Math.floor((mousePosition.y - 30) / 64), 2, (customCarRotation / 90) % 2 === 0)) {
+        if (canPlaceCustom(cars, Math.floor((mousePosition.x - 230) / 63), Math.floor((mousePosition.y - 30) / 64), 2, (customCarRotation / 90) % 2 === 0)) {
           addCustomCar(2);
         }
         setSmallCustomCarVisible(false);
       } else if (largeCustomCarVisible) {
         setCustomCarPlaced(true);
-        if (canPlaceCustom(Math.floor((mousePosition.x - 230) / 63), Math.floor((mousePosition.y - 30) / 64), 3, (customCarRotation / 90) % 2 === 0)) {
+        if (canPlaceCustom(cars, Math.floor((mousePosition.x - 230) / 63), Math.floor((mousePosition.y - 30) / 64), 3, (customCarRotation / 90) % 2 === 0)) {
           addCustomCar(3);
         }
         setLargeCustomCarVisible(false);
@@ -181,13 +181,15 @@ export default function RushHour() {
   }
 
   function addCustomCar(length : number) {
-    //console.log("Rotated", ((customCarRotation / 90) % 2 === 0));
-    custom_level.push({
+    var addedCar = {
       x : Math.floor((mousePosition.x - 230) / 63), 
       y : Math.floor((mousePosition.y - 30) / 64), 
       vertical: ((customCarRotation / 90) % 2 !== 0), 
       length: length, 
-      color: "green"});
+      color: "green"};
+    //console.log("Rotated", ((customCarRotation / 90) % 2 === 0));
+    custom_level.push(addedCar);
+    cars.push(addedCar);
   }
 
   //handles space bar being pressed
@@ -205,6 +207,7 @@ export default function RushHour() {
   function clearCustomLevel() {
     custom_level.length = 0;
     custom_level.push({ x: 0, y: 2, vertical: false, length: 2, color: "red" });
+    setCars([{ x: 0, y: 2, vertical: false, length: 2, color: "red" }]);
   }
 
   let state = carsToId(cars);
