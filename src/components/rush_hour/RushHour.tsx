@@ -1,8 +1,9 @@
-import { useState , useEffect} from "react";
+import { useState , useEffect, useRef} from "react";
 import { Graph } from "../graph";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable"; // The default
 import { isLegalMove, canPlaceCustom, isLegalCustomMove } from "../../isLegalMove";
 import { custom_level, levels } from "./RushHourLevels";
+import React from "react";
 
 // function to take a cars list and convert it to a id using a hash
 function carsToId(cars: Car[]): string {
@@ -47,7 +48,12 @@ export default function RushHour() {
   const [customCarRotation, setCustomCarRotation] = useState(0);
   const [customCarX, customCarY] = handleCustomCarOnGridMovement();
 
-  
+  //reading socket from camera
+  const ws = React.useRef<WebSocket | null>(null);
+  const [usingCam, setUsingCam] = useState(true);
+  const usingCamRef = useRef(usingCam);
+  const [camCars, setCamCars] = useState<Car[]>([]);
+  const selectingLevelRef = useRef(selecting_level); 
 
   function setNewCarsState(newCars: Car[]) {
     // utility to update cars, states, and stateTransitions at the same time
@@ -138,7 +144,7 @@ export default function RushHour() {
         setLargeCustomCarVisible(false);
       }
     }
-    console.log("event type: ", event.detail, ", ", smallCustomCarVisible, ", ", largeCustomCarVisible);
+    //console.log("event type: ", event.detail, ", ", smallCustomCarVisible, ", ", largeCustomCarVisible);
 
   };
 
@@ -192,26 +198,70 @@ export default function RushHour() {
     cars.push(addedCar);
   }
 
-  //handles space bar being pressed
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.code === "Space") {
-        setCustomCarRotation((prevRotation) => prevRotation + 90); // Rotate by 90 degrees
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
   function clearCustomLevel() {
     custom_level.length = 0;
     custom_level.push({ x: 0, y: 2, vertical: false, length: 2, color: "red" });
     setCars([{ x: 0, y: 2, vertical: false, length: 2, color: "red" }]);
   }
 
-  let state = carsToId(cars);
+  /*
+  * Handles all of the web socket stuff with the camera backend
+  * Handles space bar being pressed
+  */
+  useEffect(() => {
+    usingCamRef.current = usingCam;
+    selectingLevelRef.current = selecting_level;
+  }, [usingCam, selecting_level]);
 
+  useEffect(() => {
+    ws.current = new WebSocket('ws://localhost:8000/ws');
+
+    console.log("Connected at least")
+
+    ws.current.onmessage = (message) => {
+      let data = JSON.parse(message.data);  
+      let cars_arr : Car[]  = data["cars"]; 
+      let is_legal_board = data["is_legal_board"]
+
+      console.log("Level representation: ", data);
+      if (is_legal_board) {
+        setCamCars(cars_arr);
+
+        if (usingCamRef.current && !selectingLevelRef.current) {
+          console.log("Setting cars from camCars after update", usingCamRef, usingCam);
+          //console.log("Cars rep:", cars_arr);
+          setCars(cars_arr);  // use the fresh cars_arr directly
+        }
+      }
+    };
+
+    ws.current.onopen = () => {
+      ws.current?.send(JSON.stringify({ event: 'connected' }));
+    };
+
+    ws.current.onerror = (error) => {
+      console.error("WebSocket Error:", error);
+    };    
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.code === "Space") {
+        setCustomCarRotation((prevRotation) => prevRotation + 90); // Rotate by 90 degrees
+      } else if (event.code === "ShiftLeft") { //only use this to request the initial level representation
+        console.log("Left Shift Key Pressed - Requesting level rep");
+        ws.current?.send(JSON.stringify({ event: "request_level_rep" }));
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      ws.current?.close();
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+
+  let state = carsToId(cars);
   let grid: string[][] = [];
   for (let i = 0; i < 6; i++) {
     grid.push([]);
@@ -256,10 +306,10 @@ export default function RushHour() {
     }
   }
 
-  console.log("cars", cars);
-  console.log("state", state);
-  console.log("states", states);
-  console.log("stateTransitions", stateTransitions);
+  //console.log("cars", cars);
+  //console.log("state", state);
+  //console.log("states", states);
+  //console.log("stateTransitions", stateTransitions);
 
   return (
     <div className="flex flex-row flex-1 items-center px-2 gap-4 h-full w-full" onClick={handleMouseClick}>
@@ -290,12 +340,21 @@ export default function RushHour() {
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
             onClick={() => {
-//implement this next
               setSettingCustomLevel(true);
               load_custom_level();
             }}
           >
             Set custom board
+          </button>
+          <button
+            className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
+            onClick={() => setUsingCam((prev) => {
+              const updated = !prev;
+              console.log("Toggled usingCam to", updated);
+              return updated;
+            })}
+          >
+            Toggle Camera Use
           </button>
         </div>
       </div>
@@ -428,6 +487,47 @@ export default function RushHour() {
                   );
                   })
                 )}
+                {camCars.map((car, i) => {
+                  const inset = 4;
+                  const carWidth =
+                    (car.vertical ? cellWidth : cellWidth * car.length) - inset * 2;
+                  const carHeight =
+                    (car.vertical ? cellWidth * car.length : cellWidth) - inset * 2;
+
+                  const carUnitWidth = car.vertical ? 1 : car.length;
+                  const carUnitHeight = car.vertical ? car.length : 1;
+
+                  // console.log(car, carUnitWidth, carUnitHeight);
+
+                  return (
+                    <Draggable
+                      key={i}
+                      axis={car.vertical ? "y" : "x"}
+                      handle=".handle"
+                      grid={[cellWidth, cellWidth]}
+                      scale={1}
+                      position={{ x: car.x * cellWidth, y: car.y * cellWidth }}
+                      bounds={{
+                        left: 0,
+                        top: 0,
+                        right: cellWidth * (6 - carUnitWidth),
+                        bottom: cellWidth * (6 - carUnitHeight),
+                      }}
+                      onStop={handleDragStop}
+                    >
+                    <div
+                        className={`absolute bg-${car.color}-500 handle rounded-xl`}
+                        style={{
+                          width: carWidth,
+                          height: carHeight,
+                          top: 2 + inset,
+                          left: 2 + inset,
+                        }}
+                        id={JSON.stringify(car)}
+                      ></div>
+                    </Draggable>
+                  );
+                })}
               </div>
             </div>
             <button
@@ -477,10 +577,6 @@ export default function RushHour() {
           >
             Clear
           </button>
-      
-            {//STILL NEED TO HANDLE THIS THING NOT RENDERING CARS AFTER THEY"RE MOVED BC OF RENDERING STUFF (THEY EXIST IN CUSTOM LEVEL)
-            }
-
             {smallCustomCarVisible && !largeCustomCarVisible && (
               <div
                 className="fixed w-32 h-16 bg-green-500 opacity-75 pointer-events-none"
