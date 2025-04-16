@@ -1,4 +1,4 @@
-import { useState , useEffect} from "react";
+import { useState , useEffect, useRef} from "react";
 import { Graph } from "../graph";
 import Draggable, { DraggableData, DraggableEvent } from "react-draggable"; // The default
 import { isLegalMove, canPlaceCustom, isLegalCustomMove } from "../../isLegalMove";
@@ -28,13 +28,9 @@ let currentLevel : number = 0;
 export default function RushHour() {
   const [cars, setCars] = useState<Car[]>(initialCars);
   const [states, setStates] = useState<Record<stateId, Car[]>>(initialStates);
-  const [stateTransitions, setStateTransitions] = useState<
-    [stateId, stateId][]
-  >([]);
+  const [stateTransitions, setStateTransitions] = useState<[stateId, stateId][]>([]);
   const [message, _] = useState<string | null>(null);
-  const [transitionsEdges, setTransitionsEdges] = useState<
-    Record<stateIdPair, [stateId, stateId]>
-  >({});
+  const [transitionsEdges, setTransitionsEdges] = useState<Record<stateIdPair, [stateId, stateId]>>({});
   const [levelComplete, setLevelComplete] = useState(false);
   const [selecting_level, setSelectingLevel] = useState(false);
   const [settingCustomLevel, setSettingCustomLevel] = useState(false);
@@ -45,6 +41,8 @@ export default function RushHour() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [customCarPlaced, setCustomCarPlaced] = useState(false);
   const [customCarRotation, setCustomCarRotation] = useState(0);
+  //Reference to the 6x6 rush-hour grid.
+  const gridRef = useRef<HTMLDivElement>(null);
   const [customCarX, customCarY] = handleCustomCarOnGridMovement();
 
   
@@ -155,24 +153,53 @@ export default function RushHour() {
   }
 
   function handleCustomCarOnGridMovement() {
-    if (mousePosition.x >= 225 && mousePosition.y >= 30
-      && mousePosition.x <= 610 && mousePosition.y <= 415
-    ) { //mouse over grid
-      var x = Math.floor((mousePosition.x - 230) / 63);
-      var y = Math.floor((mousePosition.y - 30) / 64);
+    if (!gridRef.current) return [mousePosition.x, mousePosition.y];
+  
+    const gridRect = gridRef.current.getBoundingClientRect();
+    const gridLeft = gridRect.left;
+    const gridRight = gridRect.right;
+    const gridTop = gridRect.top;
+    const gridBottom = gridRect.bottom;
+
+    // More reliable boundary check
+    if (
+      mousePosition.x >= gridLeft && 
+      mousePosition.x <= gridRight &&
+      mousePosition.y >= gridTop && 
+      mousePosition.y <= gridBottom
+    ) {
+      const cellSize = gridRect.width / 6;
+      const x = Math.floor((mousePosition.x - gridLeft) / cellSize);
+      const y = Math.floor((mousePosition.y - gridTop) / cellSize);
       
-      //car length is 2
+      // Calculate position adjustments based on car size and orientation
       if (smallCustomCarVisible) {
         if (((customCarRotation / 90) % 2 !== 0)) {
-          return [63 * x + 263, 64 * y + 90]; //vertical
+          // Vertical car (length 2)
+          return [
+            gridLeft + cellSize * x + cellSize * 0.5,  // Center in cell
+            gridTop + cellSize * y + cellSize          // Offset by 1 cell height
+          ];
         } else {
-          return [63 * x + 293, 64 * y + 60]; //horizontal
+          // Horizontal car (length 2)
+          return [
+            gridLeft + cellSize * x + cellSize,        // Offset by 1 cell width
+            gridTop + cellSize * y + cellSize * 0.5    // Center in cell
+          ];
         }
       } else if (largeCustomCarVisible) {
         if (((customCarRotation / 90) % 2 !== 0)) {
-          return [63 * x + 263, 64 * y + 125]; //vertical
+          // Vertical car (length 3)
+          return [
+            gridLeft + cellSize * x + cellSize * 0.5,  // Center in cell
+            gridTop + cellSize * y + cellSize * 1.5    // Offset by 1.5 cell height
+          ];
         } else {
-          return [63 * x + 328, 64 * y + 60]; //horizontal
+          // Horizontal car (length 3)
+          return [
+            gridLeft + cellSize * x + cellSize * 1.5, // Offset by 1.5 cell width
+            gridTop + cellSize * y + cellSize * 0.5    // Center in cell
+          ];
         }
       }
     }
@@ -306,7 +333,7 @@ export default function RushHour() {
           {/*right border*/}
           <div className="absolute top-[33.65%] right-0 w-[24px] h-[16.66%] bg-white border-4 border-gray-700 border-r-0"></div>
           {/*grid/board*/}
-          <div className="relative grid grid-cols-6 aspect-square w-96 h-96 grid-rows-6 justify-between gap-1 bg-black p-1">
+          <div ref={gridRef} className="relative grid grid-cols-6 aspect-square w-96 h-96 grid-rows-6 justify-between gap-1 bg-black p-1">
             {grid.map((row, i) =>
               row.map((_, j) => {
                 const isExitGap = j === 5 && i === 2 ? "border-r-transparent" : "";
