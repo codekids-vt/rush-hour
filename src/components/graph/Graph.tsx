@@ -4,6 +4,7 @@ export interface IGraphProps {
   state: string;
   states: Record<string, Car[]>;
   stateTransitions: Record<stateIdPair, [stateId, stateId]>;
+  onNodeHover: (nodeId: string | null) => void;
 }
 
 export default function Graph(props: IGraphProps) {
@@ -32,6 +33,8 @@ export default function Graph(props: IGraphProps) {
         animated={false}
         nodes={nodes}
         edges={edges}
+        onNodePointerOver={(node) => props.onNodeHover?.(node.id || null)}
+        onNodePointerOut={() => props.onNodeHover?.(null)}
       />
     </div>
   );

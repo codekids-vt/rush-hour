@@ -46,6 +46,9 @@ export default function RushHour() {
   const gridRef = useRef<HTMLDivElement>(null);
   const [customCarX, customCarY] = handleCustomCarOnGridMovement();
 
+  //Handles hovering mouse over node
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+
   //reading socket from camera
   const ws = React.useRef<WebSocket | null>(null);
   const [usingCam, setUsingCam] = useState(true);
@@ -404,7 +407,28 @@ export default function RushHour() {
               );
               })
             )}
-            {cars.map((car, i) => {
+
+            {/* previews the car positions stored in the node being hovered */}
+            {hoveredNodeId && states[hoveredNodeId].map((car) => {
+              const inset = 4; // Match your existing car inset
+              const cellWidth = 63.333; // Match your existing cellWidth
+              
+              return (
+                <div
+                  //key={`preview-${idx}`}
+                  className={`absolute bg-${car.color}-500 opacity-40 rounded-xl`}
+                  style={{
+                    width: (car.vertical ? cellWidth : cellWidth * car.length) - inset * 2,
+                    height: (car.vertical ? cellWidth * car.length : cellWidth) - inset * 2,
+                    top: 6 + car.y * cellWidth,
+                    left: 6 + car.x * cellWidth,
+                    pointerEvents: 'none'
+                  }}
+                />
+              );
+            })}
+
+            {!hoveredNodeId && cars.map((car, i) => {
               const inset = 4;
               const carWidth =
                 (car.vertical ? cellWidth : cellWidth * car.length) - inset * 2;
@@ -455,6 +479,7 @@ export default function RushHour() {
             state={state}
             states={states}
             stateTransitions={transitionsEdges}
+            onNodeHover={setHoveredNodeId}
           />
           }
           {levelComplete && !selecting_level && !settingCustomLevel &&
