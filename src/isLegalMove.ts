@@ -26,9 +26,8 @@ function carsOnPath(otherCars: Car[], pathTaken: number[]) { //pathTaken = [star
                 leftX = temp;
             }
 
-            console.log(leftX);
-            console.log(rightX);
-
+            //console.log(leftX);
+            //console.log(rightX);
 
             if (car.x < rightX && car.x > leftX) { //other car is located between x coords
                 if (car.y == movedCarY) { //if other car's Y is located along path (covers all horizontal)

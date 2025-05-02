@@ -33,6 +33,7 @@ export default function RushHour() {
   const [message, _] = useState<string | null>(null);
   const [transitionsEdges, setTransitionsEdges] = useState<Record<stateIdPair, [stateId, stateId]>>({});
   const [levelComplete, setLevelComplete] = useState(false);
+  const [levelDifficulty, setLevelDifficulty] = useState(-1);
   const [selecting_level, setSelectingLevel] = useState(false);
   const [settingCustomLevel, setSettingCustomLevel] = useState(false);
   
@@ -55,10 +56,11 @@ export default function RushHour() {
   const usingCamRef = useRef(usingCam);
   const [camCars, setCamCars] = useState<Car[]>([]);
   const selectingLevelRef = useRef(selecting_level); 
+  const prevCarsRef = useRef<Car[]>(cars);
 
   function setNewCarsState(newCars: Car[]) {
     // utility to update cars, states, and stateTransitions at the same time
-    const lastState = carsToId(cars);
+    const lastState = carsToId(prevCarsRef.current);
     const newState = carsToId(newCars);
     previousState = cars;
     setStates((states) => {
@@ -71,37 +73,23 @@ export default function RushHour() {
       return { ...edges, [`${lastState}-${newState}`]: [lastState, newState] };
     });
     setCars(newCars);
+    prevCarsRef.current = newCars;
   }
 
-  //currently only undoes last move
+  /* ---------------------------------
+    Left Column Buttons Functionality
+  ----------------------------------*/
   function undo_last_move() {
-    //console.log("Last State:", carsToId(previousState));
     setNewCarsState(previousState);
   }
 
-  /* 
-  restarting the level
-  */
   function restart_level() {
-    //console.log("Current level is: " + currentLevel);
     setCars(levels[currentLevel]);
-  }
 
-  function resetGraph(levelNum : number) {
-    // Reset the states, transitions, and edges
-    setStates({ [carsToId(levels[levelNum])]: levels[levelNum] });
-    setStateTransitions([]);
-    setTransitionsEdges({});
-  }
-    
-  function load_new_level(levelNum : number) {
-    //need to clear graph and stuff
-    setLevelComplete(false);
-    setCars(levels[levelNum]);
-    resetGraph(levelNum);
-    previousState = levels[levelNum];
-    currentLevel = levelNum;
-    setSelectingLevel(true);
+    if (settingCustomLevel) {
+      resetGraph(currentLevel);
+      setSettingCustomLevel(false);
+    }
   }
 
   function load_custom_level() {
@@ -111,6 +99,46 @@ export default function RushHour() {
     setSelectingLevel(true);
   }
 
+  function resetGraph(levelNum : number) {
+    setStates({ [carsToId(levels[levelNum])]: levels[levelNum] });
+    setStateTransitions([]);
+    setTransitionsEdges({});
+  }
+    
+  function load_new_level(levelNum : number) {
+    setLevelComplete(false);
+    setCars(levels[levelNum]);
+    resetGraph(levelNum);
+    previousState = levels[levelNum];
+    currentLevel = levelNum;
+    setSelectingLevel(true);
+
+    if (usingCam) {
+      console.log("trying to send");
+      ws.current?.send(JSON.stringify({
+        event: "level_loaded",
+        level_rep: levels[levelNum]
+      }));
+    }
+  }
+
+  function numToDifficulty(num : number) {
+    if (num == 3) {
+      return ["Expert", "red"];
+    } else if (num == 2) {
+      return ["Advanced", "blue"];
+    } else if (num == 1) {
+      return ["Intermediate", "yellow"];
+    } else if (num == 0) {
+      return ["Beginner", "green"];
+    } else {
+      return ["**NO DIFFICULTY SELECTED**", "red"];
+    }
+  }
+
+  /*--------------------------------
+    Handles making a custom board
+  --------------------------------*/
   useEffect(() => {
     function handleMouseMove(event: MouseEvent) {
       if (!customCarPlaced) {
@@ -223,7 +251,6 @@ export default function RushHour() {
       vertical: ((customCarRotation / 90) % 2 !== 0), 
       length: length, 
       color: "green"};
-    //console.log("Rotated", ((customCarRotation / 90) % 2 === 0));
     custom_level.push(addedCar);
     cars.push(addedCar);
   }
@@ -234,10 +261,9 @@ export default function RushHour() {
     setCars([{ x: 0, y: 2, vertical: false, length: 2, color: "red" }]);
   }
 
-  /*
-  * Handles all of the web socket stuff with the camera backend
-  * Handles space bar being pressed
-  */
+  /*---------------------------------------------------------------
+    Handles all of the web socket stuff with the camera backend
+  ---------------------------------------------------------------*/
   useEffect(() => {
     usingCamRef.current = usingCam;
     selectingLevelRef.current = selecting_level;
@@ -253,14 +279,13 @@ export default function RushHour() {
       let cars_arr : Car[]  = data["cars"]; 
       let is_legal_board = data["is_legal_board"]
 
-      console.log("Level representation: ", data);
+      //console.log("Level representation: ", data);
       if (is_legal_board) {
         setCamCars(cars_arr);
 
         if (usingCamRef.current && !selectingLevelRef.current) {
-          console.log("Setting cars from camCars after update", usingCamRef, usingCam);
-          //console.log("Cars rep:", cars_arr);
-          setCars(cars_arr);  // use the fresh cars_arr directly
+          setNewCarsState(cars_arr);
+          //setCars(cars_arr);
         }
       }
     };
@@ -276,10 +301,10 @@ export default function RushHour() {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.code === "Space") {
         setCustomCarRotation((prevRotation) => prevRotation + 90); // Rotate by 90 degrees
-      } else if (event.code === "ShiftLeft") { //only use this to request the initial level representation
+      } /*else if (event.code === "ShiftLeft") { //only use this to request the initial level representation
         console.log("Left Shift Key Pressed - Requesting level rep");
         ws.current?.send(JSON.stringify({ event: "request_level_rep" }));
-      }
+      }*/
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -302,6 +327,9 @@ export default function RushHour() {
 
   const cellWidth = 63.333;
 
+  /*------------------------------------------------
+    Handles cars being dragged on frontend board 
+  ------------------------------------------------*/
   function handleDragStop(_: DraggableEvent, data: DraggableData) {
     let oldCar = JSON.parse(data.node.id);
     const x = Math.round(data.x / cellWidth);
@@ -350,7 +378,7 @@ export default function RushHour() {
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
             onClick={undo_last_move}
           >
-            Undo
+            Undo Last Move
           </button>
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
@@ -363,6 +391,7 @@ export default function RushHour() {
             onClick={() => {
               setLevelComplete(true);
               setSelectingLevel(false);
+              setLevelDifficulty(-1);
             }}
           >
             Select different level
@@ -384,7 +413,7 @@ export default function RushHour() {
               return updated;
             })}
           >
-            Toggle Camera Use
+            {usingCam ? "Turn Camera Off" : "Turn Camera On"}
           </button>
         </div>
       </div>
@@ -483,6 +512,7 @@ export default function RushHour() {
           />
           }
           {levelComplete && !selecting_level && !settingCustomLevel &&
+          levelDifficulty == -1 &&
           <div className="flex flex-col gap-2 p-4">   
             <h1 className="text-3xl text-center my-4">Congrats! You have completed the level</h1>
             <button
@@ -493,37 +523,54 @@ export default function RushHour() {
           </button>
             <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
-            onClick={() => load_new_level(1)}
+            onClick={() => setLevelDifficulty(0)} //load_new_level(1)}
           >
             Beginner {/*1*/}
           </button>
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-yellow-400"
-            onClick={() => load_new_level(2)}
+            onClick={() => setLevelDifficulty(1)}
           >
             Intermediate {/*11*/}
           </button>
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-blue-400"
-            onClick={() => load_new_level(3)}
+            onClick={() => setLevelDifficulty(2)}
           >
             Advanced {/*21*/}
           </button>
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-red-400"
-            onClick={() => load_new_level(4)}
+            onClick={() => setLevelDifficulty(3)}
           >
             Expert {/*32*/}
           </button>
           </div>}
+          {levelComplete && !selecting_level && !settingCustomLevel &&
+          levelDifficulty != -1 && <div className="flex flex-col gap-2 p-4">   
+          <h1 className="text-3xl text-center my-4">Congrats! Select from the {numToDifficulty(levelDifficulty)[0]} levels</h1>
+          
+          <div className="grid grid-cols-5 gap-3">
+          {[...Array(10).keys()].map((i) => (
+        <button
+          key={i}
+          className={`aspect-square w-16 bg-${numToDifficulty(levelDifficulty)[1]}-400 text-white rounded-lg text-lg font-semibold hover:bg-${numToDifficulty(levelDifficulty)[1]}-500 transition`}
+          onClick={() => load_new_level(1 + i + levelDifficulty * 10)}
+        >
+          {1 + i + levelDifficulty * 10}
+        </button>
+      ))}
+      </div>
+        </div>}
+          
           {/* make this actually read what is happening from the sensors once we get that working 
           graph automatically reappears after first move once start button is pressed, once working 
           change to once the expected board and matches up with the actual board*/}
           {selecting_level && !settingCustomLevel &&
           <div className="flex flex-col gap-2 p-4">   
-            <h3 className="text-3xl text-center my-4">This is what your board looks like right now</h3>
+            {usingCam && <h3 className="text-3xl text-center my-4">This is what your board looks like right now</h3>}
             {/*outside/border*/}
-            <div className="relative flex items-center justify-center bg-gray-300 p-2 border-4 border-gray-700 max-w-[408px] min-w-[408px]">
+            {usingCam && <div className="relative flex items-center justify-center bg-gray-300 p-2 border-4 border-gray-700 max-w-[408px] min-w-[408px]">
               {/*right border*/}
               <div className="absolute top-[33.65%] right-0 w-[24px] h-[16.66%] bg-white border-4 border-gray-700 border-r-0"></div>
               {/*grid/board*/}
@@ -581,18 +628,20 @@ export default function RushHour() {
                   );
                 })}
               </div>
-            </div>
+            </div>}
             <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
             onClick={() => {
               setLevelComplete(false);
               setSelectingLevel(false);
+              setLevelDifficulty(-1);
             }}
           >
             Start
           </button>
             
           </div>}
+          {/* Setting a custom level */}
           {settingCustomLevel &&
             <div
             className="relative flex flex-col items-center justify-center bg-gray-300 p-2 border-4 border-gray-700 max-w-[408px] min-w-[408px] min-h-[410px]"

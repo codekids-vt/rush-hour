@@ -93,12 +93,16 @@ async def websocket_endpoint(websocket: WebSocket):
                 starting_level_rep = level_rep_json
                 print("Starting level rep:", starting_level_rep)
                 await websocket.send_json(level_rep_json)
+            elif event_type == "level_loaded":
+                print("new level loaded")
+                starting_level_rep = {"cars": message.get("level_rep"), "is_legal_board": True}
+                print("Starting level rep is:", starting_level_rep)
+
         except asyncio.TimeoutError:
             # No message received from frontend after 1 second, continue to background sending
             pass
 
-        #await asyncio.sleep(1.5)
-        print("sending pre-made board")
+        #print("sending pre-made board")
         try:
             level_rep, is_legal_rep = get_level_rep_existing(avg_values, adjusted_color_values, starting_level_rep) 
             level_rep_json = {"cars": level_rep, "is_legal_board" : is_legal_rep}
@@ -160,7 +164,7 @@ def main():
                     #print("Space bar pressed")
                     adj_color_values = adjust_colors(avg_values)
                     alter_adjusted_values(adj_color_values)
-                    #print("new adj colors are: ", adj_color_values)
+                    print("new adj colors are: ", adj_color_values)
                 elif event.key == pygame.K_LSHIFT:  # Check if left shift is pressed
                     level_rep = get_level_rep_socket(avg_values, adj_color_values)
                     print("Level rep:\n", level_rep)

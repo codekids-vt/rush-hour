@@ -4,7 +4,7 @@ import numpy as np
 import webcolors
 
 RED = [175, 85, 75]
-GREY = [105, 115, 115] #[97, 107, 107] #[80, 89, 89]
+GREY = [125, 135, 135] #[105, 115, 115] #[97, 107, 107] #[80, 89, 89]
 
 class Color(enum.Enum):
     RED = 'red'
@@ -121,7 +121,7 @@ def get_and_process_frame(vid: cv2.VideoCapture):
     # display a small square of the average color of each part
     for i in range(0, grid_size):
         for j in range(0, grid_size):
-            #avg prints out rgb in reverse for some reason
+            #avg #prints out rgb in reverse for some reason
             #99, 111, 176 => 176, 111, 99
 
             # draw a small square of the average color of each part
@@ -180,7 +180,9 @@ def convert_color_str_to_rgb(color_str):
                        'green': [78, 165, 130], 'blue': [80, 125, 190], 
                        'purple': [120, 125, 180],  'teal': [95, 200, 190],
                        'pink': [190, 110, 150], 'aqua': [0, 255, 255], 
-                       'lime': [180, 215, 127], 'sky': [140, 195, 127]}
+                       'lime': [180, 215, 127], 'sky': [140, 195, 127],
+                       'emerald': [102, 255, 153]} 
+    
     return conversion_dict[color_str]
 
 '''
@@ -189,9 +191,9 @@ Checks if the given color is a grey square on the board
 def check_is_grey(color, add_val=25):
     if len(color) < 3:
         return False
-    color_req = color[0] <= 120 and color[1] <= 130 and color[2] <= 130
+    color_req = color[0] <= 155 and color[1] <= 140 and color[2] <= 120
     #color[0] <= GREY[0] + add_val and color[1] <= GREY[1] + add_val and color[2] <= GREY[2] + add_val
-    dist_req = color[0] + color[1] > 1.55 * color[2]
+    dist_req = color[0] + color[1] > 2.05 * color[2]
     return color_req and dist_req
 
 '''
@@ -316,39 +318,39 @@ def get_cars_from_grid(colors):
     cars_on_grid = np.array([[0 if check_is_grey(rgb_val) else -1 for rgb_val in row] for row in colors]) 
     car_num = 1
 
-    #print("After get lone cars:\n", cars_on_grid)
+    ##print("After get lone cars:\n", cars_on_grid)
     partial_cars_on_grid, new_car_num  = get_single_adjacent(cars_on_grid, colors, car_num)
     
-    #print("After get single adjacent cars:\n", partial_cars_on_grid)
+    ##print("After get single adjacent cars:\n", partial_cars_on_grid)
     final_cars_on_grid, new_car_num = match_unassigned_squares(partial_cars_on_grid, colors, new_car_num)
     
     return final_cars_on_grid
 
 
 def get_cars_from_grid_grey(greys_grid, colors):
-    #print("Greys grid:\n", greys_grid)
+    ##print("Greys grid:\n", greys_grid)
     #might be able to get rid of this logic
     cars_on_grid, car_num = get_lone_cars(greys_grid)
     
-    #print("After get lone cars:\n", cars_on_grid)
+    ##print("After get lone cars:\n", cars_on_grid)
     partial_cars_on_grid, new_car_num  = get_single_adjacent(cars_on_grid, colors, car_num)
     
-    #print("After get single adjacent cars:\n", partial_cars_on_grid)
+    ##print("After get single adjacent cars:\n", partial_cars_on_grid)
     final_cars_on_grid, new_car_num = match_unassigned_squares(partial_cars_on_grid, colors, new_car_num)
     if -1 in np.array(final_cars_on_grid):
-        print("final has -1 in it:\n", final_cars_on_grid)
+        ##print("final has -1 in it:\n", final_cars_on_grid)
         final_cars_on_grid = fix_adjacent_not_read(final_cars_on_grid, new_car_num)
-    #print("final:\n", final_cars_on_grid)
+    ##print("final:\n", final_cars_on_grid)
     
     car_coords_dict, car_colors = get_car_coords_color_dict(final_cars_on_grid, colors)
-    #print("coords dict:\n", car_coords_dict)
-    #print("colors dict:\n", car_colors)
+    ##print("coords dict:\n", car_coords_dict)
+    ##print("colors dict:\n", car_colors)
     return car_coords_dict, car_colors, final_cars_on_grid
 
 def get_lone_cars(greys_grid):
     grid_shape = greys_grid.shape
     cars_on_grid = np.where(greys_grid, 0, -1)
-    #print("Shape:", grid_shape, "\n", cars_on_grid)
+    ##print("Shape:", grid_shape, "\n", cars_on_grid)
     car_num_placed = 1
     for i in range(grid_shape[0]):
         for j in range(grid_shape[1]):
@@ -366,7 +368,7 @@ def get_lone_cars(greys_grid):
                 (j + 2 >= grid_shape[1] or np.sum(~greys_grid[i][j+2:j + 3]) < 1)):
                 cars_on_grid[i][j:j+2] = car_num_placed
                 car_num_placed += 1 
-                #print("found 2 horizontal", i, j, np.sum(~greys_grid[i - 1][j:j+2]), np.sum(~greys_grid[(i + 1)  % grid_shape[0]][j:j+2]), np.sum(~greys_grid[i][j+2:j + 3]), j + 2 >= grid_shape[1])
+                ##print("found 2 horizontal", i, j, np.sum(~greys_grid[i - 1][j:j+2]), np.sum(~greys_grid[(i + 1)  % grid_shape[0]][j:j+2]), np.sum(~greys_grid[i][j+2:j + 3]), j + 2 >= grid_shape[1])
 
 
             flipped_grey_grid = greys_grid.T
@@ -384,9 +386,9 @@ def get_lone_cars(greys_grid):
                 (j + 2 >= grid_shape[1] or np.sum(~flipped_grey_grid[i][j+2:j + 3]) < 1)):
                 cars_on_grid[j:j+2, i] = car_num_placed
                 car_num_placed += 1 
-                #print("found 2 vertical", i, j, np.sum(~flipped_grey_grid[i - 1][j:j+2]), np.sum(~flipped_grey_grid[(i + 1) % grid_shape[0]][j:j+2]), np.sum(~flipped_grey_grid[i][j+2:j + 3]), j + 2 >= grid_shape[1])
+                ##print("found 2 vertical", i, j, np.sum(~flipped_grey_grid[i - 1][j:j+2]), np.sum(~flipped_grey_grid[(i + 1) % grid_shape[0]][j:j+2]), np.sum(~flipped_grey_grid[i][j+2:j + 3]), j + 2 >= grid_shape[1])
 
-    #print("Cars on grid:\n", cars_on_grid)
+    ##print("Cars on grid:\n", cars_on_grid)
     return cars_on_grid, car_num_placed + 1
 
 '''
@@ -395,26 +397,26 @@ only one option to pair with and make a car) together with the adjacent square t
 '''
 def get_single_adjacent(cars_on_grid, colors, car_num):
     grid_shape = cars_on_grid.shape
-    #print("Cars on grid:\n", cars_on_grid)
+    ##print("Cars on grid:\n", cars_on_grid)
     
     for i in range(grid_shape[0]):
         for j in range(grid_shape[1]):
             if cars_on_grid[i][j] == -1:
                 adjacency_dict = get_adjacency(cars_on_grid, colors, i, j)
-                #print(i, j, adjacency_dict)
+                ##print(i, j, adjacency_dict)
                 #check if only 1 option or 0 (error)
                 num_adjacent_boxes = 4 - sum(1 for value in adjacency_dict.values() if value == [0, 0, 0])
-                #print(i, j, num_adjacent_boxes)
+                ##print(i, j, num_adjacent_boxes)
 
                 '''if num_adjacent_boxes == 0:
-                    print("ERROR, no adjacent boxes")
+                    #print("ERROR, no adjacent boxes")
                 el'''
                 if num_adjacent_boxes == 1: #only one option for pairing
                     #handle pairing logic
-                    #print(i,j,cars_on_grid[i][j], adjacency_dict)
+                    ##print(i,j,cars_on_grid[i][j], adjacency_dict)
                     for key, value in adjacency_dict.items():
                         if value != [0, 0, 0]:
-                            #print(i,j, key)
+                            ##print(i,j, key)
                             if key == "top" and cars_on_grid[i - 1][j] == -1:
                                 cars_on_grid[i][j] = car_num
                                 cars_on_grid[i - 1][j] = car_num
@@ -432,7 +434,7 @@ def get_single_adjacent(cars_on_grid, colors, car_num):
                                 cars_on_grid[i][j + 1] = car_num
                                 car_num += 1
 
-    #print(cars_on_grid)
+    ##print(cars_on_grid)
     return cars_on_grid, car_num
 
 '''
@@ -440,7 +442,7 @@ Helper function that matches all of the unassigned squares
 with the square it's closest with to make the final board rep
 '''
 def match_unassigned_squares(partial_cars_on_grid, colors, car_num):
-    #print("partial cars on grid:\n", partial_cars_on_grid)
+    ##print("partial cars on grid:\n", partial_cars_on_grid)
     directions_grid = np.full((6, 6), "None", dtype='<U6')
     grid_shape = partial_cars_on_grid.shape
     for i in range(grid_shape[0]):
@@ -449,7 +451,7 @@ def match_unassigned_squares(partial_cars_on_grid, colors, car_num):
             if partial_cars_on_grid[i][j] == -1:
                 adjacency_dict = get_adjacency(partial_cars_on_grid, colors, i, j)
                 c = colors[i][j]
-                #print(i,j,c)
+                ##print(i,j,c)
 
                 best_dir = "left"
                 shortest_dist = 65000
@@ -468,7 +470,7 @@ def match_unassigned_squares(partial_cars_on_grid, colors, car_num):
                         if distance < shortest_dist:
                             shortest_dist = distance
                             best_dir = key
-                        #print(key, dc, distance)
+                        ##print(key, dc, distance)
 
                 directions_grid[i][j] = best_dir
                 #partial_cars_on_grid[i][j] = car_num
@@ -476,14 +478,14 @@ def match_unassigned_squares(partial_cars_on_grid, colors, car_num):
                 #change this so that I can handle 3 in middle
                 #partial_cars_on_grid[i][j] = car_num
                 
-    #print(cars_on_grid)
-    #print("Directions\n", directions_grid)
+    ##print(cars_on_grid)
+    ##print("Directions\n", directions_grid)
 
     for i in range(grid_shape[0]):
         for j in range(grid_shape[1]):
             key = directions_grid[i][j]
             if key != "None" and partial_cars_on_grid[i][j] == -1:
-                #print(key, i, j)
+                ##print(key, i, j)
                 di, dj = get_dir_coords(key, i, j)
                 dkey = directions_grid[di][dj]
                 if (keys_opposite(key, dkey)): #matching pair (top & bottom) or (left & right)
@@ -492,13 +494,13 @@ def match_unassigned_squares(partial_cars_on_grid, colors, car_num):
                     partial_cars_on_grid[di][dj] = car_num
                     car_num += 1
                 else: #checks if its a possible 3
-                    #print("possible 3", i, j)
+                    ##print("possible 3", i, j)
                     #check next two blocks are a match
                     ddi, ddj = get_dir_coords(key, di, dj)
                     if ((di >= 0 and di < grid_shape[0]) and (ddi >= 0 and ddi < grid_shape[0]) and
                         (dj >= 0 and dj < grid_shape[1]) and (ddj >= 0 and ddj < grid_shape[1]) and
                         (partial_cars_on_grid[di][dj] == partial_cars_on_grid[ddi][ddj])):
-                        #print("found 3")
+                        ##print("found 3")
                         if partial_cars_on_grid[di][dj] != -1:
                             partial_cars_on_grid[i][j] = partial_cars_on_grid[di][dj]
                         else:
@@ -516,23 +518,18 @@ Fixes when two adjacent sqaures that are supposed to make a car haven't been pro
 def fix_adjacent_not_read(final_cars_on_grid, car_num):
     grid = np.array(final_cars_on_grid)
     positions = np.where(grid == -1)
-    #print("Positions:", positions)
-
-    points = list(zip(positions[0], positions[1]))
-    print("Points:", points)
-
+    
+    points = list(zip(positions[0], positions[1])) 
     for i in range(len(points)):
         for j in range(i + 1, len(points)):  # Avoid repeating pairs
             x1, y1 = points[i]
             x2, y2 = points[j]
-            
             # Check for horizontal or vertical adjacency
             if (abs(x1 - x2) == 1 and y1 == y2) or (x1 == x2 and abs(y1 - y2) == 1):
                 # if they are adjacent
                 final_cars_on_grid[x1, y1] = car_num
                 final_cars_on_grid[x2, y2] = car_num
                 car_num += 1
-
     return final_cars_on_grid
 
 '''
@@ -543,8 +540,8 @@ both sides of the concrete pair think they should be added to make the car of le
 Happens when 1 side's rgb distance is closer to car of length 3 than what should be the match
 '''
 def fix_four_error(x, y, vertical, grid, colors):
-    print("Fixing at", x, y, grid[x][y])
-    print("Start Grid:\n", grid)
+    ##print("Fixing at", x, y, grid[x][y])
+    ##print("Start Grid:\n", grid)
     if vertical:
         bottom_adj = get_adjacency(grid, colors, x, y)
         shortest_bottom = 65000
@@ -555,7 +552,7 @@ def fix_four_error(x, y, vertical, grid, colors):
                 gd = (value[1] - colors[x][y][1]) ** 2
                 bd = (value[0] - colors[x][y][0]) ** 2
                 distance = rd + gd + bd
-                #print("left", key, "distance:", distance)
+                ##print("left", key, "distance:", distance)
                 if distance < shortest_bottom:
                     shortest_bottom = distance
                     bottom_dir = key
@@ -569,7 +566,7 @@ def fix_four_error(x, y, vertical, grid, colors):
                 gd = (value[1] - colors[x+3][y][1]) ** 2
                 bd = (value[0] - colors[x+3][y][0]) ** 2
                 distance = rd + gd + bd
-                #print("right", key, "distance:", distance)
+                ##print("right", key, "distance:", distance)
                 if distance < shortest_top:
                     shortest_top = distance
                     top_dir = key
@@ -590,7 +587,7 @@ def fix_four_error(x, y, vertical, grid, colors):
                 gd = (value[1] - colors[x][y][1]) ** 2
                 bd = (value[0] - colors[x][y][0]) ** 2
                 distance = rd + gd + bd
-                #print("left", key, "distance:", distance)
+                ##print("left", key, "distance:", distance)
                 if distance < shortest_left:
                     shortest_left = distance
                     left_dir = key
@@ -604,7 +601,7 @@ def fix_four_error(x, y, vertical, grid, colors):
                 gd = (value[1] - colors[x][y+3][1]) ** 2
                 bd = (value[0] - colors[x][y+3][0]) ** 2
                 distance = rd + gd + bd
-                #print("right", key, "distance:", distance)
+                ##print("right", key, "distance:", distance)
                 if distance < shortest_right:
                     shortest_right = distance
                     right_dir = key
@@ -616,7 +613,7 @@ def fix_four_error(x, y, vertical, grid, colors):
             i, j = get_dir_coords(left_dir, x, y)
             grid[x][y] = grid[i][j]
 
-    print("end grid:\n", grid)
+    ##print("end grid:\n", grid)
     pos_dict, color_dict = get_car_coords_color_dict(grid, colors)
     level_rep = get_cars_from_dict(pos_dict, color_dict)
     sorted_level_rep = sorted(level_rep, key=lambda car: car['color'] != 'red')
@@ -627,22 +624,22 @@ Attempts to fix all the errors that occur when the final grid rep has a -1 in it
 '''
 def fix(final_grid, starting_level_rep, colors):
     #calculates the sum of tiles used in the starting rep and grid rep
-    print("Given final grid:\n", final_grid)
-    print("Starting level rep", starting_level_rep)
+    ##print("Given final grid:\n", final_grid)
+    ##print("Starting level rep", starting_level_rep)
     s = 0
     for car in starting_level_rep:
         s += car["length"]
     
     g = final_grid > 0
     gs = sum(sum(g))
-    print("car[] rep - grid rep =", s - gs)
+    #print("car[] rep - grid rep =", s - gs)
     
     if s - gs == 2: #likely car pair that didn't match
         fixCarNum = np.max(final_grid) + 1
-        print("trying to fix adjacent not read", fixCarNum)
+        ##print("trying to fix adjacent not read", fixCarNum)
         final_grid = fix_adjacent_not_read(final_grid, fixCarNum)
     elif s-gs == 1: #likey end of 3 wrongly matched with part of 2, -1 is leftover unmatched part of 2
-        print("fixing using starting rep")
+        #print("fixing using starting rep")
         final_grid = fix_using_start_rep(final_grid, colors, starting_level_rep)
     elif s-gs < 0:
         #too many grey's being read
@@ -663,17 +660,23 @@ def fix(final_grid, starting_level_rep, colors):
 Uses the starting representation to match cars to the final grid representation if there's an error
 '''
 #TODO finish this function
-def fix_using_start_rep(final_grid, colors, starting_level_rep):
+def fix_using_start_rep(initial_final_grid, colors, initial_starting_level_rep):
     #find all of the created cars that are likely placed correctly
-    initial_final_grid = final_grid
+    final_grid = initial_final_grid.copy()
+    new_car_num = final_grid.max() + 1
+    #print("new car num is:", new_car_num)
+    starting_level_rep = initial_starting_level_rep.copy()
+    #print("initial final grid is:\n", initial_final_grid)
 
     #remove all found cars from the final rep
+    not_found_cars = []
     for car in starting_level_rep:
         if car["vertical"]:
             car_nums_in_column = {}
             car_y = 5 - car["x"]
             column = final_grid[:, car_y]
-            #print("column is", column)
+            print(column)
+            ##print("column is", column)
             #get all the car nums on the grid
             for i, num in enumerate(column):
                 if num != 0:
@@ -683,22 +686,24 @@ def fix_using_start_rep(final_grid, colors, starting_level_rep):
                         car_nums_in_column[num] = [i]
 
             #match the car with its grid rep if it is found
-            #print(car_nums_in_column)
+            ##print(car_nums_in_column)
             car_len = car["length"]
         
             found_car = False
             for value in car_nums_in_column.values():
                 if len(value) == car_len and not found_car:
-                    print("found car at", value[0], car_y)
+                    ##print("found car at", value[0], car_y)
                     for v in value:
                         final_grid[v][car_y] = 0 #set to 0 so other car's can't read it atm
-                    starting_level_rep.remove(car)
+                    #starting_level_rep.remove(car)
                     found_car = True
+            if not found_car:
+                not_found_cars.append(car)
+
         else:
             car_nums_in_row = {}
             car_x = 5 - car["y"]
             row = final_grid[car_x]
-            print("row is", row)
             #get all the car nums on the grid
             for i, num in enumerate(row):
                 if num != 0:
@@ -708,25 +713,31 @@ def fix_using_start_rep(final_grid, colors, starting_level_rep):
                         car_nums_in_row[num] = [i]
 
             #match the car with its grid rep if it is found
-            print(car_nums_in_row)
+            ##print(car_nums_in_row)
             car_len = car["length"]
-        
             found_car = False
             for value in car_nums_in_row.values():
                 if len(value) == car_len and not found_car:
-                    print("found car at", car_x, value[0])
+                    ##print("found car at", car_x, value[0])
                     for v in value:
                         final_grid[car_x][v] = 0
-                    starting_level_rep.remove(car)
+                    #starting_level_rep.remove(car)
                     found_car = True
-    
+            if not found_car:
+                not_found_cars.append(car)
+            
+    #print("Cars left rep:\n", starting_level_rep, len(starting_level_rep))
+    print("Not found:\n", not_found_cars)
+
     #loop through remaining cars and try to rearrange
-    for car in starting_level_rep:
+    for car in not_found_cars:
+        #print(car)
         if car["vertical"]:
             car_nums_in_column = {}
             car_y = 5 - car["x"]
             column = final_grid[:, car_y]
 
+            #print(column)
             #get all the car nums on the column
             for i, num in enumerate(column):
                 if num != 0:
@@ -738,48 +749,67 @@ def fix_using_start_rep(final_grid, colors, starting_level_rep):
             #match the car with its grid rep if it is found
             car_len = car["length"]
         
-            print("missing car is", car)
+            ##print("missing car is", car)
+            total_unassigned_squares = 0
             for value in car_nums_in_column.values():
-                adjacent_squares = {}
+                l = len(value)
+                total_unassigned_squares += l
+
+            #print(total_unassigned_squares, car_len)
+
+            if total_unassigned_squares > car_len:
+                print("need to implement, hasn't occured yet")
+            elif total_unassigned_squares == car_len:
+                for value in car_nums_in_column.values():
+                    for v in value:
+                        initial_final_grid[v][car_y] = new_car_num
+                #print("assign all unassigned squares to same num")
+            else:
+                print("need to implement, hasn't occured yet")
+    
+            #for value in car_nums_in_column.values():
+            
+            '''    adjacent_squares = {}
                 if len(value) == car_len - 1:
                     if car_len == 3:
-                        print([[v, car_y] for v in value]) 
+                        ##print([[v, car_y] for v in value]) 
                         a = min(value)
                         b = max(value)
                         if a > 0:
-                            print("color at", a-1, car_y, "is:", colors[a-1][car_y], colors[a][car_y], calculate_color_distance(colors[a][car_y], colors[a-1][car_y]))
+                            ##print("color at", a-1, car_y, "is:", colors[a-1][car_y], colors[a][car_y], calculate_color_distance(colors[a][car_y], colors[a-1][car_y]))
                             adjacent_squares[calculate_color_distance(colors[a][car_y], colors[a-1][car_y])] = [a-1, final_grid[a][car_y]]
                         if b < 5:
-                            print("color at", b+1, car_y, "is:", colors[b+1][car_y])
+                            ##print("color at", b+1, car_y, "is:", colors[b+1][car_y])
                             adjacent_squares[calculate_color_distance(colors[b][car_y], colors[b+1][car_y])] = [b+1, final_grid[b][car_y]]
                     
 
                         #change square that is most likely to be the wrong one
                         mv = adjacent_squares[min(adjacent_squares.keys())] #mv = [y_val_to_change, val_to_set_it_to]
-                        print(mv)
+                        ##print(mv)
                         final_grid[mv[0]][car_y] = mv[1]
                     else: #car length is 2
                         if (-1 in car_nums_in_column): #negative 1 needs to bind to closest in column
-                            print("found -1")
+                            ##print("found -1")
                             index = car_nums_in_column[-1][0]
 
                             if index > 0:
-                                print("color at", index-1, car_y, "is:", colors[index-1][car_y], colors[index][car_y], calculate_color_distance(colors[a][car_y], colors[a-1][car_y]))
+                                ##print("color at", index-1, car_y, "is:", colors[index-1][car_y], colors[index][car_y], calculate_color_distance(colors[a][car_y], colors[a-1][car_y]))
                                 adjacent_squares[calculate_color_distance(colors[index][car_y], colors[index-1][car_y])] = [index, final_grid[index-1][car_y]]
                             if index < 5:
-                                print("color at", index+1, car_y, "is:", colors[index+1][car_y])
+                                ##print("color at", index+1, car_y, "is:", colors[index+1][car_y])
                                 adjacent_squares[calculate_color_distance(colors[index][car_y], colors[index+1][car_y])] = [index, final_grid[index+1][car_y]]
                             
                             mv = adjacent_squares[min(adjacent_squares.keys())] #mv = [y_val_to_change, val_to_set_it_to]
-                            print(mv)
+                            ##print(mv)
                             final_grid[mv[0]][car_y] = mv[1]
                 #TODO implement car logic for length 2 cars
-
+        '''
         else:
             car_nums_in_row = {}
             car_x = 5 - car["y"]
-            row = initial_final_grid[car_x]
-            print("row is", row)
+            row = final_grid[car_x]
+            #print(row)
+
             #get all the car nums on the grid
             for i, num in enumerate(row):
                 if num != 0:
@@ -789,47 +819,29 @@ def fix_using_start_rep(final_grid, colors, starting_level_rep):
                         car_nums_in_row[num] = [i]
 
             #match the car with its grid rep if it is found
-            print(car_nums_in_row)
+            #print(car_nums_in_row)
             car_len = car["length"]
         
-            print("missing car is", car)
+            #print(car_nums_in_row)
+            total_unassigned_squares = 0
             for value in car_nums_in_row.values():
-                adjacent_squares = {}
-                if len(value) == car_len - 1:
-                    if car_len == 3:
-                        print([[car_x, v] for v in value]) 
-                        a = min(value)
-                        b = max(value)
-                        if a > 0:
-                            print("color at", car_x, a-1, "is:", colors[car_x][a-1], colors[car_x][a], calculate_color_distance(colors[car_x][a], colors[car_x][a-1]))
-                            adjacent_squares[calculate_color_distance(colors[car_x][a], colors[car_x][a-1])] = [a-1, final_grid[car_x][a]]
-                        if b < 5:
-                            print("color at", car_x, b+1, "is:", colors[car_x][b+1])
-                            adjacent_squares[calculate_color_distance(colors[car_x][b], colors[car_x][b+1])] = [b+1, final_grid[car_x][b]]
-                    
+                l = len(value)
+                total_unassigned_squares += l
 
-                        #change square that is most likely to be the wrong one
-                        mv = adjacent_squares[min(adjacent_squares.keys())] #mv = [y_val_to_change, val_to_set_it_to]
-                        print(mv)
-                        final_grid[car_x][mv[0]] = mv[1]
-                    else: #car length is 2
-                        if (-1 in car_nums_in_column): #negative 1 needs to bind to closest in column
-                            print("found -1")
-                            index = car_nums_in_column[-1][0]
+            #print(total_unassigned_squares, car_len)
 
-                            if index > 0:
-                                print("color at", car_x, index-1, "is:", colors[car_x][index-1], colors[car_x][index], calculate_color_distance(colors[car_x][index], colors[car_x][index-1]))
-                                adjacent_squares[calculate_color_distance(colors[car_x][index], colors[car_x][index-1])] = [index, final_grid[car_x][index-1]]
-                            if index < 5:
-                                print("color at", car_x, index+1, "is:", colors[car_x][index+1])
-                                adjacent_squares[calculate_color_distance(colors[car_x][index], colors[car_x][index+1])] = [index, final_grid[car_x][index+1]]
-                            
-                            mv = adjacent_squares[min(adjacent_squares.keys())] #mv = [y_val_to_change, val_to_set_it_to]
-                            print(mv)
-                            final_grid[car_x][mv[0]] = mv[1]
-                #TODO implement car logic for length 2 cars
-
-    return final_grid
+            if total_unassigned_squares > car_len:
+                print("need to implement, hasn't occured yet")
+            elif total_unassigned_squares == car_len:
+                for value in car_nums_in_row.values():
+                    for v in value:
+                        initial_final_grid[car_x][v] = new_car_num
+                #print("assign all unassigned squares to same num")
+            else:
+                print("need to implement, hasn't occured yet")
+    
+    #print("revised final grid is:\n", initial_final_grid)
+    return initial_final_grid
 
 '''
 Helper function for when 1 color square is read as a grey
@@ -841,7 +853,7 @@ def find_missing_color(final_grid, starting_level_rep, colors):
             car_nums_in_column = {}
             car_y = 5 - car["x"]
             column = final_grid[:, car_y]
-            #print("column is", column)
+            ##print("column is", column)
             #get all the car nums on the grid
             for i, num in enumerate(column):
                 if num != 0:
@@ -851,26 +863,26 @@ def find_missing_color(final_grid, starting_level_rep, colors):
                         car_nums_in_column[num] = [i]
 
             #match the car with its grid rep if it is found
-            #print(car_nums_in_column)
+            ##print(car_nums_in_column)
             car_len = car["length"]
         
             found_car = False
             for value in car_nums_in_column.values():
                 if len(value) == car_len and not found_car:
-                    print("found car at", value[0], car_y)
+                    #print("found car at", value[0], car_y)
                     for v in value:
                         final_grid[v][car_y] = 0 #set to 0 so other car's can't read it atm
                     found_car = True
 
             if not found_car:
-                print("missing car is", car)
+                print("missing car is", car, ". Need to implement logic")
                 #missing car logic right here
                 #TODO fill this out (use portion below)
         else:
             car_nums_in_row = {}
             car_x = 5 - car["y"]
             row = final_grid[car_x]
-            print("row is", row)
+            #print("row is", row)
             #get all the car nums on the grid
             for i, num in enumerate(row):
                 if num != 0:
@@ -880,27 +892,27 @@ def find_missing_color(final_grid, starting_level_rep, colors):
                         car_nums_in_row[num] = [i]
 
             #match the car with its grid rep if it is found
-            print(car_nums_in_row)
+            #print(car_nums_in_row)
             car_len = car["length"]
         
             found_car = False
             for value in car_nums_in_row.values():
                 if len(value) == car_len and not found_car:
-                    print("found car at", car_x, value[0])
+                    #print("found car at", car_x, value[0])
                     for v in value:
                         final_grid[car_x][v] = 0
                     found_car = True
 
             if not found_car:
-                print("missing car is", car)
+                #print("missing car is", car)
                 for value in car_nums_in_row.values():
                     adjacent_squares = {}
                     if len(value) == car_len - 1:
-                        print([[car_x, v] for v in value]) 
+                        #print([[car_x, v] for v in value]) 
                         a = min(value)
                         b = max(value)
                         if a > 0 and final_grid[car_x][a-1] == 0:
-                            print("color at", car_x, a-1, "is:", colors[car_x][a-1], colors[car_x][a], calculate_color_distance(colors[car_x][a], colors[car_x][a-1]))
+                            #print("color at", car_x, a-1, "is:", colors[car_x][a-1], colors[car_x][a], calculate_color_distance(colors[car_x][a], colors[car_x][a-1]))
                             adjacent_squares[calculate_color_distance(colors[car_x][a], colors[car_x][a-1])] = [a-1, final_grid[car_x][a]]
                         if b < 5:
                             if final_grid[car_x][b+1] == 0:
@@ -909,7 +921,7 @@ def find_missing_color(final_grid, starting_level_rep, colors):
                                 print(colors[car_x][a-2], colors[car_x][a], calculate_color_distance(colors[car_x][a],  colors[car_x][a-2]))
                 #missing car logic right here
                 mv = adjacent_squares[min(adjacent_squares.keys())] #mv = [x_val_to_change, val_to_set_it_to]
-                print(mv)
+                #print(mv)
                 return [car_x] + mv
 
     return [0,0,0]
@@ -948,23 +960,23 @@ def get_car_coords_color_dict(final_cars_on_grid, colors):
 Converts car coords dict and car colors dict to Car[] representation
 '''
 def get_cars_from_dict(cars_pos, cars_color_rgb):
-    #print(cars_pos, cars_color_rgb)
+    ##print(cars_pos, cars_color_rgb)
     cars_color = {}
     #set the red car
     red_car_num = get_red(cars_color_rgb)    
-    #print("Red car num\n", red_car_num)
+    ##print("Red car num\n", red_car_num)
     cars_color[red_car_num] = Color.RED
     #set the remaining cars
     for key, value in cars_color_rgb.items():
         if key != red_car_num:
             cars_color[key] = convert_car_to_color(value)
     
-    #print("Color\n", cars_color)
+    ##print("Color\n", cars_color)
     level_rep_tsx = []
     for key, value in cars_pos.items():
         horizontal_coords = [coord[1] for coord in value]
         vertical_coords = [coord[0] for coord in value]
-        #print(horizontal_coords, min(horizontal_coords))
+        ##print(horizontal_coords, min(horizontal_coords))
         x = 5 - max(horizontal_coords)
         y = 5 - max(vertical_coords)
         isVertical = (value[0][0] != value[1][0])
@@ -984,11 +996,11 @@ def get_cars_from_dicts_and_start_rep(cars_pos, cars_color_rgb, starting_level_r
     level_rep_tsx = []
     
     #set the red car
-    red_car_num = get_red(cars_color_rgb)    
+    red_car_num = get_red_using_pos(cars_pos, cars_color_rgb)    
     red_car_coords = cars_pos[red_car_num]
     rc_horizontal_coords = [coord[1] for coord in red_car_coords]
     rc_vertical_coords = [coord[0] for coord in red_car_coords]
-    #print(horizontal_coords, min(horizontal_coords))
+    ##print(horizontal_coords, min(horizontal_coords))
     rc_x = 5 - max(rc_horizontal_coords)
     rc_y = 5 - max(rc_vertical_coords)
     rc_isVertical = (red_car_coords[0][0] != red_car_coords[1][0])
@@ -1003,8 +1015,6 @@ def get_cars_from_dicts_and_start_rep(cars_pos, cars_color_rgb, starting_level_r
         if car["color"] != "red": #bc we already handled the red car
             initial_rep_dict[(car["x"], car["y"], car["vertical"], car["length"])] = car["color"]
         
-    print("initial cars are:\n", initial_rep_dict)
-            
     #print("Color\n", cars_color)
     for key, value in cars_pos.items():
         horizontal_coords = [coord[1] for coord in value]
@@ -1017,30 +1027,22 @@ def get_cars_from_dicts_and_start_rep(cars_pos, cars_color_rgb, starting_level_r
         car_color = cars_color_rgb[key]
 
 
-        print("current tsx rep is:", x, y, isVertical, length)
-        #TODO finish this part, assign the car color 
+        #print("current tsx rep is:", x, y, isVertical, length)
         possible_cars_color_distance = {}
         if isVertical:
             for ikey, ivalue in initial_rep_dict.items():
                 if ikey[0] == x:
-                    possible_cars_color_distance[calculate_color_distance_rgb_str(car_color, ivalue)] = ivalue
-                    print("Found a possible match:", ikey, x, y, isVertical, length)
-                    #calculate_color_distance(cars_color_rgb[key])
-            #print("need to implement vertical")        
+                    possible_cars_color_distance[calculate_color_distance_rgb_str(car_color, ivalue)] = ivalue    
         else: #is horizontal
             for ikey, ivalue in initial_rep_dict.items():
                 if ikey[1] == y:
                     possible_cars_color_distance[calculate_color_distance_rgb_str(car_color, ivalue)] = ivalue
-                    print("Found a possible match:", ikey, x, y, isVertical, length)
-            #print("need to implement horizontal")
-
-        print(possible_cars_color_distance)
-
+                    
         if possible_cars_color_distance: #if dictionary has values
             car_rep_dict = { "x": x, "y": y, "vertical": isVertical, "length": length, "color": possible_cars_color_distance[min(possible_cars_color_distance.keys())] }
             level_rep_tsx.append(car_rep_dict)
         else: #dictionary is empty, board is being read wrong and the car can't be found
-            print("Error: could not find correct car")
+            #print("Error: could not find correct car")
             return [{ "x": 0, "y": 2, "vertical": False, "length": 2, "color": "red" }]
 
 
@@ -1062,6 +1064,18 @@ def get_red(cars_color):
     
     return red_dist[min(red_dist.keys())]
 
+def get_red_using_pos(cars_pos, cars_color):
+    red_dist = {}
+    for key, value in cars_color.items():
+        if all(row[0] == 3 for row in cars_pos[key]):
+            bd = (value[2] - RED[2]) ** 2
+            gd = (value[1] - RED[1]) ** 2
+            rd = (value[0] - RED[0]) ** 2
+            distance = rd + gd + bd
+            red_dist[distance] = key
+    
+    return red_dist[min(red_dist.keys())]
+
 
 '''
 GETTING REPRESENTATIONS FOR THE SOCKET CONNECTION
@@ -1075,7 +1089,7 @@ def get_level_rep_socket(avg_values, adj_color_values):
     for i in range(grid_size):
         for j in range(grid_size):
             c = np.round(avg_values[i][j][::-1]).astype(int)  # Convert color enum to Pygame-compatible value
-            #print(c, adj_color_values[i][j])
+            ##print(c, adj_color_values[i][j])
             acv = np.round(adj_color_values[i][j][::-1]).astype(int)
             color = (
                 max(0, min(255, c[0] + acv[0])),
@@ -1088,22 +1102,22 @@ def get_level_rep_socket(avg_values, adj_color_values):
             colors[i][j] = color
     
     cars_pos, cars_color, final_cars_on_grid = get_cars_from_grid_grey(greys_grid, colors)
-    #print("Car pos:\n", cars_pos)
-    #print("Car color:\n", cars_color)
+    ##print("Car pos:\n", cars_pos)
+    ##print("Car color:\n", cars_color)
 
     #check if there was an error
     if -1 in cars_pos:
-        print("Error with the camera reading, here is the grid:\n", final_cars_on_grid)
-        print("grey's grid for error:\n", greys_grid)
+        #print("Error with the camera reading, here is the grid:\n", final_cars_on_grid)
+        #print("grey's grid for error:\n", greys_grid)
         return [{"x":1, "y":2, "vertical": False, "length":2, "color":"red"}]
     
-    #print("Final grid:\n", final_cars_on_grid)
+    ##print("Final grid:\n", final_cars_on_grid)
     level_rep = get_cars_from_dict(cars_pos, cars_color)
     sorted_level_rep = sorted(level_rep, key=lambda car: car['color'] != 'red')
     for car in sorted_level_rep:
         if car["length"] > 3:
             #run here to fix error, should only be 4 in a row max
-            print("Error car: ", car)
+            #print("Error car: ", car)
             a = 5 - car["y"]
             b = 5 - car["x"]
             v = car["vertical"]
@@ -1113,7 +1127,7 @@ def get_level_rep_socket(avg_values, adj_color_values):
                 b -=3
             return fix_four_error(a, b, v, final_cars_on_grid, colors)
     #make sure level rep has the red car first
-    #print("Colors:\n", colors)
+    ##print("Colors:\n", colors)
     return sorted_level_rep
 
 '''
@@ -1136,7 +1150,7 @@ def get_level_rep_existing(avg_values, adj_color_values, starting_level_rep):
     for i in range(grid_size):
         for j in range(grid_size):
             c = np.round(avg_values[i][j][::-1]).astype(int)  # Convert color enum to Pygame-compatible value
-            #print(c, adj_color_values[i][j])
+            ##print(c, adj_color_values[i][j])
             acv = np.round(adj_color_values[i][j][::-1]).astype(int)
             color = (
                 max(0, min(255, c[0] + acv[0])),
@@ -1151,12 +1165,13 @@ def get_level_rep_existing(avg_values, adj_color_values, starting_level_rep):
     
     #check if there was an error and try to fix it if there was
     if np.any(final_cars_on_grid == -1):
-        print("Error with the camera reading, here is the rgb grid:\n", colors)
-        print("Error with the camera reading, here is the grid:\n", final_cars_on_grid)
-    
+        #print("Error with the camera reading, here is the rgb grid:\n", colors)
+        #print("Error with the camera reading, here is the grid:\n", final_cars_on_grid)
+        placeholder = True
+
     #actually going to just have fix return fixed version, same if nothing was wrong
     final_cars_on_grid = fix(final_cars_on_grid, starting_level_rep['cars'], colors)
-    print("New final grid:\n", final_cars_on_grid)
+    #print("New final grid:\n", final_cars_on_grid)
     
 
     #if the final grid still has a -1 return an error
@@ -1176,7 +1191,7 @@ def get_level_rep_existing(avg_values, adj_color_values, starting_level_rep):
     for car in sorted_level_rep:
         if car["length"] > 3:
             #run here to fix error, should only be 4 in a row max
-            print("Car of length 4 that caused error: ", car)
+            #print("Car of length 4 that caused error: ", car)
             a = 5 - car["y"]
             b = 5 - car["x"]
             v = car["vertical"]

@@ -1,69 +1,523 @@
-/*
-orange and gray don't render all the time I don't know why
-can still drag and move them (you can see the graph change)
-they just don't show on screen I'm not sure if it's a problem 
-with my computer because I've been having issues with it or
-if it's a problem with the app 
-*/
 export const custom_level : Car[] = [{ x: 0, y: 2, vertical: false, length: 2, color: "red" }]
 
 export const levels : Car[][] = [[ //intro
   { x: 0, y: 2, vertical: false, length: 2, color: "red" },
   { x: 4, y: 1, vertical: true, length: 3, color: "blue" },
   { x: 2, y: 2, vertical: true, length: 2, color: "green" }
-], [ //1
+], 
+/* ----------------------
+        BEGINNER
+-----------------------*/
+[ //1
     {'x': 0, 'y': 2, 'vertical': false, 'length': 2, 'color': 'red'},
     {'x': 5, 'y': 3, 'vertical': true, 'length': 3, 'color': 'blue'},
     {'x': 0, 'y': 3, 'vertical': false, 'length': 3, 'color': 'orange'},
-    {'x': 2, 'y': 0, 'vertical': true, 'length': 3, 'color': 'cyan'},
+    {'x': 2, 'y': 0, 'vertical': true, 'length': 3, 'color': 'teal'},
     {'x': 4, 'y': 0, 'vertical': false, 'length': 2, 'color': 'lime'}
-], [ //beginner
-  { x: 0, y: 2, vertical: false, length: 2, color: "red" },
-  { x: 5, y: 3, vertical: true, length: 3, color: "blue" },
-  { x: 4, y: 0, vertical: false, length: 2, color: "green" },
-  { x: 2, y: 0, vertical: true, length: 3, color: "yellow" },
-  { x: 0, y: 3, vertical: false, length: 3, color: "purple" }
+], [ //2
+    { x: 3, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 0, y: 3, vertical: false, length: 3, color: "blue" },
+    { x: 3, y: 3, vertical: true, length: 2, color: "lime" },
+    { x: 2, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 5, y: 1, vertical: true, length: 3, color: "orange" },
+    { x: 4, y: 4, vertical: false, length: 2, color: "sky" }
+], [ //3
+    { x: 0, y: 2, vertical: false, length: 2, color: "red"},
+    { x: 3, y: 2, vertical: true, length: 3, color: "yellow"},
+    { x: 0, y: 0, vertical: true, length: 2, color: "lime"},
+    { x: 1, y: 0, vertical: true, length: 2, color: "orange"},
+    { x: 2, y: 0, vertical: false, length: 2, color: "sky"},
+    { x: 2, y: 1, vertical: false, length: 2, color: "purple"},
+    { x: 4, y: 0, vertical: true, length: 2, color: "pink"},
+    { x: 2, y: 2, vertical: true, length: 2, color: "green"},
+    { x: 4, y: 3, vertical: true, length: 2, color: "teal"},
+    { x: 2, y: 4, vertical: true, length: 2, color: "blue" }
+], [ //4
+    { x: 0, y: 2, vertical: false, length: 2, color: "red"},
+    { x: 2, y: 1, vertical: true, length: 2, color: "lime"},
+    { x: 0, y: 3, vertical: false, length: 3, color: "orange"},
+    { x: 0, y: 4, vertical: true, length: 2, color: "sky"},
+    { x: 1, y: 4, vertical: true, length: 2, color: "pink"},
+    { x: 2, y: 4, vertical: true, length: 2, color: "purple"},
+    { x: 4, y: 1, vertical: true, length: 3, color: "yellow"},
+    { x: 5, y: 2, vertical: true, length: 2, color: "blue"},
+    { x: 4, y: 4, vertical: false, length: 2, color: "green"},
+    { x: 4, y: 5, vertical: false, length: 2, color: "orange" }
+], [ //5
+    { x: 0, y: 2, vertical: false, length: 2, color: "red"},
+    { x: 0, y: 1, vertical: false, length: 3, color: "orange"},
+    { x: 0, y: 3, vertical: false, length: 3, color: "emerald"},
+    { x: 2, y: 0, vertical: false, length: 3, color: "yellow"},
+    { x: 4, y: 1, vertical: true, length: 3, color: "blue" },
+    { x: 5, y: 2, vertical: true, length: 2, color: "lime"},
+    { x: 4, y: 4, vertical: false, length: 2, color: "pink"},
+    { x: 4, y: 5, vertical: false, length: 2, color: "orange"},
+    { x: 2, y: 4, vertical: true, length: 2, color: "sky"},
+    { x: 0, y: 4, vertical: true, length: 2, color: "purple"},
+], [ //6
+    { x: 0, y: 2, vertical: false, length: 2, color: "red"},
+    { x: 2, y: 1, vertical: true, length: 3, color: "yellow"},
+    { x: 5, y: 3, vertical: true, length: 3, color: "orange"},
+    { x: 0, y: 5, vertical: false, length: 3, color: "blue" },
+    { x: 5, y: 1, vertical: true, length: 2, color: "lime"},
+    { x: 1, y: 4, vertical: false, length: 2, color: "pink"},
+    { x: 3, y: 4, vertical: true, length: 2, color: "purple"},
+    { x: 3, y: 3, vertical: false, length: 2, color: "sky"},
+    { x: 0, y: 3, vertical: true, length: 2, color: "orange"},
+    { x: 4, y: 4, vertical: true, length: 2, color: "green"}
+], [ //7
+    { x: 2, y: 2, vertical: false, length: 2, color: "red"},
+    { x: 4, y: 0, vertical: true, length: 3, color: "yellow"},
+    { x: 1, y: 1, vertical: false, length: 3, color: "orange"},
+    { x: 3, y: 3, vertical: false, length: 3, color: "blue" },
+    { x: 2, y: 0, vertical: false, length: 2, color: "lime"},
+    { x: 5, y: 1, vertical: true, length: 2, color: "orange"},
+    { x: 2, y: 3, vertical: true, length: 2, color: "sky"},
+    { x: 3, y: 4, vertical: true, length: 2, color: "pink"},
+    { x: 4, y: 4, vertical: false, length: 2, color: "purple"},
+    { x: 4, y: 5, vertical: false, length: 2, color: "green"}
+], [ //8
+    { x: 2, y: 2, vertical: false, length: 2, color: "red"},
+    { x: 1, y: 2, vertical: true, length: 3, color: "yellow"},
+    { x: 3, y: 4, vertical: false, length: 3, color: "orange"},
+    { x: 0, y: 0, vertical: false, length: 2, color: "lime"},
+    { x: 0, y: 1, vertical: false, length: 2, color: "purple"},
+    { x: 2, y: 0, vertical: true, length: 2, color: "orange"},
+    { x: 3, y: 0, vertical: true, length: 2, color: "sky"},
+    { x: 4, y: 0, vertical: false, length: 2, color: "pink"},
+    { x: 4, y: 1, vertical: true, length: 2, color: "green"},
+    { x: 5, y: 1, vertical: true, length: 2, color: "blue"}
+], [ //9
+    { x: 0, y: 2, vertical: false, length: 2, color: "red"},
+    { x: 2, y: 3, vertical: false, length: 3, color: "yellow"},
+    { x: 0, y: 0, vertical: true, length: 2, color: "purple"},
+    { x: 1, y: 0, vertical: false, length: 2, color: "lime"},
+    { x: 3, y: 0, vertical: true, length: 2, color: "sky"},
+    { x: 5, y: 1, vertical: true, length: 2, color: "orange"},
+    { x: 2, y: 1, vertical: true, length: 2, color: "pink"},
+    { x: 5, y: 3, vertical: true, length: 2, color: "purple"},
+    { x: 0, y: 3, vertical: false, length: 2, color: "green"},
+    { x: 2, y: 4, vertical: true, length: 2, color: "blue"} 
+], [ //10
+    { x: 3, y: 2, vertical: false, length: 2, color: "red"},
+    { x: 1, y: 0, vertical: true, length: 3, color: "yellow"},
+    { x: 1, y: 5, vertical: false, length: 3, color: "orange"},
+    { x: 2, y: 0, vertical: false, length: 2, color: "lime"},
+    { x: 4, y: 0, vertical: false, length: 2, color: "orange"},
+    { x: 5, y: 1, vertical: true, length: 2, color: "sky"},
+    { x: 1, y: 3, vertical: true, length: 2, color: "purple"},
+    { x: 3, y: 3, vertical: true, length: 2, color: "purple"},
+    { x: 4, y: 3, vertical: false, length: 2, color: "green"},
+    { x: 5, y: 4, vertical: true, length: 2, color: "blue"},
+    { x: 4, y: 4, vertical: true, length: 2, color: "pink"}
 ],
-[ //intermediate
+/* ----------------------
+        INTERMEDIATE
+-----------------------*/
+[ // 11
     { x: 0, y: 2, vertical: false, length: 2, color: "red" },
     { x: 0, y: 4, vertical: false, length: 3, color: "blue" },
     { x: 0, y: 0, vertical: false, length: 3, color: "yellow" },
     { x: 1, y: 5, vertical: false, length: 2, color: "green" },
-//    { x: 2, y: 1, vertical: true, length: 3, color: "orange" },
-    { x: 2, y: 1, vertical: true, length: 3, color: "yellow" },
-    { x: 3, y: 0, vertical: true, length: 2, color: "green" },
-//    { x: 5, y: 0, vertical: true, length: 2, color: "orange" },
-    { x: 5, y: 0, vertical: true, length: 2, color: "purple" },
-    { x: 5, y: 2, vertical: true, length: 2, color: "blue" },
+    { x: 2, y: 1, vertical: true, length: 3, color: "orange" },
+    { x: 3, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 5, y: 0, vertical: true, length: 2, color: "sky" },
+    { x: 5, y: 2, vertical: true, length: 2, color: "orangex" },
     { x: 3, y: 3, vertical: false, length: 2, color: "pink" },
     { x: 4, y: 4, vertical: true, length: 2, color: "purple" }
+], [ // 12
+    { x: 1, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 4, y: 0, vertical: true, length: 3, color: "blue" },
+    { x: 3, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 5, y: 2, vertical: true, length: 3, color: "orange" },
+    { x: 3, y: 5, vertical: false, length: 3, color: "teal" },
+    { x: 0, y: 0, vertical: false, length: 2, color: "lime" },
+    { x: 2, y: 0, vertical: true, length: 2, color: "sky" },
+    { x: 0, y: 1, vertical: true, length: 2, color: "orange" },
+    { x: 1, y: 4, vertical: true, length: 2, color: "pink" },
+    { x: 2, y: 4, vertical: false, length: 2, color: "purple" }
+], [ // 13
+    { x: 0, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 5, y: 3, vertical: true, length: 3, color: "blue" },
+    { x: 3, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 2, y: 5, vertical: false, length: 3, color: "orange" },
+    { x: 0, y: 1, vertical: false, length: 3, color: "teal" },
+    { x: 1, y: 0, vertical: false, length: 2, color: "lime" },
+    { x: 4, y: 1, vertical: true, length: 2, color: "sky" },
+    { x: 3, y: 1, vertical: true, length: 2, color: "orange" },
+    { x: 5, y: 1, vertical: true, length: 2, color: "pink" },
+    { x: 2, y: 2, vertical: true, length: 2, color: "purple" },
+    { x: 0, y: 3, vertical: true, length: 2, color: "purple" },
+    { x: 1, y: 4, vertical: false, length: 2, color: "blue" },
+    { x: 0, y: 5, vertical: false, length: 2, color: "yellow" },
+    { x: 3, y: 3, vertical: false, length: 2, color: "green" }
+], [ // 14
+    { x: 2, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 3, y: 1, vertical: false, length: 3, color: "yellow" },
+    { x: 2, y: 4, vertical: false, length: 3, color: "orange" },
+    { x: 0, y: 0, vertical: false, length: 2, color: "orange" },
+    { x: 0, y: 1, vertical: true, length: 2, color: "sky" },
+    { x: 2, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 4, y: 2, vertical: true, length: 2, color: "pink" },
+    { x: 0, y: 4, vertical: false, length: 2, color: "purple" },
+    { x: 5, y: 4, vertical: true, length: 2, color: "green" }
+], [ // 15
+    { x: 3, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 1, y: 4, vertical: false, length: 3, color: "blue" },
+    { x: 0, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 0, y: 5, vertical: false, length: 3, color: "orange" },
+    { x: 3, y: 1, vertical: false, length: 3, color: "teal" },
+    { x: 1, y: 0, vertical: true, length: 2, color: "sky" },
+    { x: 4, y: 0, vertical: false, length: 2, color: "purple" },
+    { x: 2, y: 0, vertical: false, length: 2, color: "orange" },
+    { x: 1, y: 2, vertical: true, length: 2, color: "pink" },
+    { x: 5, y: 2, vertical: true, length: 2, color: "blue" },
+    { x: 0, y: 3, vertical: true, length: 2, color: "green" },
+    { x: 4, y: 4, vertical: true, length: 2, color: "yellow" },
+    { x: 5, y: 4, vertical: true, length: 2, color: "lime" },
+    { x: 3, y: 3, vertical: false, length: 2, color: "purple" }
+], [ // 16
+    { x: 0, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 1, y: 4, vertical: false, length: 3, color: "orange" },
+    { x: 1, y: 5, vertical: false, length: 3, color: "blue" },
+    { x: 4, y: 1, vertical: false, length: 2, color: "sky" },
+    { x: 4, y: 0, vertical: false, length: 2, color: "orange" },
+    { x: 3, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 2, y: 2, vertical: true, length: 2, color: "pink" },
+    { x: 0, y: 3, vertical: false, length: 2, color: "blue" },
+    { x: 0, y: 4, vertical: true, length: 2, color: "green" },
+    { x: 5, y: 2, vertical: true, length: 2, color: "green" },
+    { x: 3, y: 2, vertical: true, length: 2, color: "purple" },
+    { x: 4, y: 2, vertical: true, length: 2, color: "yellow" },
+    { x: 4, y: 4, vertical: true, length: 2, color: "pink" },
+    { x: 5, y: 4, vertical: true, length: 2, color: "purple" }
+], [ // 17
+    { x: 0, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 3, y: 2, vertical: true, length: 3, color: "orange" },
+    { x: 0, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 1, y: 5, vertical: false, length: 3, color: "blue" },
+    { x: 0, y: 1, vertical: false, length: 2, color: "sky" },
+    { x: 2, y: 1, vertical: true, length: 2, color: "pink" },
+    { x: 5, y: 0, vertical: true, length: 2, color: "orange" },
+    { x: 3, y: 0, vertical: false, length: 2, color: "lime" },
+    { x: 3, y: 1, vertical: false, length: 2, color: "purple" },
+    { x: 5, y: 2, vertical: true, length: 2, color: "blue" },
+    { x: 4, y: 3, vertical: true, length: 2, color: "green" },
+    { x: 4, y: 5, vertical: false, length: 2, color: "purple" },
+    { x: 1, y: 4, vertical: false, length: 2, color: "yellow" },
+    { x: 0, y: 4, vertical: true, length: 2, color: "green" }
+], [ // 18
+    { x: 1, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 5, y: 2, vertical: true, length: 3, color: "orange" },
+    { x: 2, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 2, y: 3, vertical: true, length: 3, color: "blue" },
+    { x: 3, y: 5, vertical: false, length: 3, color: "teal" },
+    { x: 3, y: 2, vertical: true, length: 2, color: "pink" },
+    { x: 4, y: 2, vertical: true, length: 2, color: "sky" },
+    { x: 5, y: 0, vertical: true, length: 2, color: "green" },
+    { x: 1, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 3, y: 4, vertical: false, length: 2, color: "purple" },
+    { x: 0, y: 3, vertical: false, length: 2, color: "yellow" },
+    { x: 0, y: 4, vertical: true, length: 2, color: "blue" }
+], [ // 19
+    { x: 0, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 3, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 5, y: 3, vertical: true, length: 3, color: "orange" },
+    { x: 2, y: 5, vertical: false, length: 3, color: "blue" },
+    { x: 0, y: 3, vertical: false, length: 2, color: "pink" },
+    { x: 2, y: 2, vertical: true, length: 2, color: "sky" },
+    { x: 5, y: 1, vertical: true, length: 2, color: "green" },
+    { x: 2, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 4, y: 3, vertical: true, length: 2, color: "purple" },
+    { x: 2, y: 4, vertical: false, length: 2, color: "yellow" },
+    { x: 1, y: 4, vertical: true, length: 2, color: "orange" }
+], [ // 20
+    { x: 0, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 1, y: 4, vertical: false, length: 3, color: "yellow" },
+    { x: 2, y: 2, vertical: true, length: 2, color: "pink" },
+    { x: 3, y: 2, vertical: true, length: 2, color: "sky" },
+    { x: 4, y: 3, vertical: true, length: 2, color: "green" },
+    { x: 3, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 5, y: 2, vertical: true, length: 2, color: "purple" },
+    { x: 2, y: 4, vertical: false, length: 2, color: "yellow" },
+    { x: 4, y: 0, vertical: false, length: 2, color: "orange" },
+    { x: 0, y: 4, vertical: true, length: 2, color: "purple" },
+    { x: 5, y: 4, vertical: true, length: 2, color: "blue" }
 ],
-[ //advanced
+/* ----------------------
+        ADVANCED
+-----------------------*/
+[ // 21
     { x: 1, y: 2, vertical: false, length: 2, color: "red" },
     { x: 3, y: 3, vertical: false, length: 3, color: "blue" },
     { x: 3, y: 0, vertical: true, length: 3, color: "yellow" },
-    { x: 4, y: 4, vertical: true, length: 2, color: "blue" },
+    { x: 4, y: 4, vertical: true, length: 2, color: "orange" },
     { x: 5, y: 4, vertical: true, length: 2, color: "pink" },
     { x: 0, y: 0, vertical: false, length: 2, color: "green" },
-//    { x: 0, y: 1, vertical: true, length: 3, color: "orange" }, //doesn't render
-    { x: 0, y: 1, vertical: true, length: 3, color: "yellow" },
-    { x: 0, y: 4, vertical: false, length: 3, color: "green" },
-//    { x: 2, y: 0, vertical: true, length: 2, color: "orange" }, //orange doesn't render for some reason
-    { x: 2, y: 0, vertical: true, length: 2, color: "purple" }, 
+    { x: 0, y: 1, vertical: true, length: 3, color: "orange" },
+    { x: 0, y: 4, vertical: false, length: 3, color: "teal" },
+    { x: 2, y: 0, vertical: true, length: 2, color: "sky" }, 
     { x: 0, y: 5, vertical: false, length: 2, color: "purple" } 
-],
-[
+], [ // 22
+    { x: 0, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 1, y: 5, vertical: false, length: 3, color: "blue" },
+    { x: 5, y: 2, vertical: true, length: 3, color: "yellow" },
+    { x: 0, y: 3, vertical: true, length: 3, color: "orange" },
+    { x: 5, y: 0, vertical: true, length: 2, color: "green" },
+    { x: 1, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 4, y: 0, vertical: true, length: 2, color: "pink" }, 
+    { x: 2, y: 3, vertical: true, length: 2, color: "purple" },
+    { x: 3, y: 3, vertical: true, length: 2, color: "yellow" }, 
+    { x: 3, y: 1, vertical: true, length: 2, color: "green" }, 
+    { x: 2, y: 0, vertical: false, length: 2, color: "blue" }, 
+    { x: 4, y: 5, vertical: false, length: 2, color: "purple" }, 
+    { x: 4, y: 2, vertical: true, length: 2, color: "sky" }, 
+    { x: 2, y: 1, vertical: true, length: 2, color: "orange" } 
+], [ // 23
+    { x: 1, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 3, y: 1, vertical: false, length: 3, color: "teal" },
+    { x: 0, y: 2, vertical: true, length: 3, color: "yellow" },
+    { x: 1, y: 3, vertical: true, length: 2, color: "green" },
+    { x: 0, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 3, y: 2, vertical: true, length: 2, color: "pink" }, 
+    { x: 0, y: 5, vertical: false, length: 2, color: "purple" },
+    { x: 5, y: 4, vertical: true, length: 2, color: "yellow" }, 
+    { x: 2, y: 5, vertical: false, length: 2, color: "green" }, 
+    { x: 4, y: 4, vertical: true, length: 2, color: "blue" }, 
+    { x: 5, y: 2, vertical: true, length: 2, color: "pink" }, 
+    { x: 4, y: 0, vertical: false, length: 2, color: "sky" }, 
+    { x: 2, y: 4, vertical: false, length: 2, color: "purple" }, 
+    { x: 2, y: 0, vertical: true, length: 2, color: "orange" } 
+], [ // 24
+    { x: 1, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 3, y: 0, vertical: false, length: 3, color: "orange" },
+    { x: 5, y: 3, vertical: true, length: 3, color: "blue" },
+    { x: 0, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 2, y: 5, vertical: false, length: 2, color: "green" },
+    { x: 2, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 3, y: 1, vertical: true, length: 2, color: "pink" },
+    { x: 2, y: 3, vertical: false, length: 2, color: "orange" }, 
+    { x: 0, y: 5, vertical: false, length: 2, color: "purple" },
+    { x: 0, y: 3, vertical: false, length: 2, color: "sky" }
+], [ // 25
+    { x: 1, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 5, y: 2, vertical: true, length: 3, color: "orange" },
+    { x: 2, y: 3, vertical: true, length: 3, color: "blue" },
+    { x: 3, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 0, y: 4, vertical: false, length: 2, color: "green" },
+    { x: 0, y: 0, vertical: false, length: 2, color: "lime" },
+    { x: 0, y: 2, vertical: true, length: 2, color: "pink" },
+    { x: 4, y: 0, vertical: true, length: 2, color: "orange" }, 
+    { x: 3, y: 3, vertical: false, length: 2, color: "purple" },
+    { x: 0, y: 5, vertical: false, length: 2, color: "purple" },
+    { x: 5, y: 0, vertical: true, length: 2, color: "sky" }
+     
+], [ // 26
+    { x: 1, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 2, y: 3, vertical: true, length: 3, color: "orange" },
+    { x: 0, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 5, y: 4, vertical: true, length: 2, color: "green" },
+    { x: 3, y: 0, vertical: true, length: 2, color: "lime" },
+    { x: 4, y: 3, vertical: false, length: 2, color: "pink" },
+    { x: 4, y: 1, vertical: false, length: 2, color: "orange" }, 
+    { x: 3, y: 4, vertical: false, length: 2, color: "purple" },
+    { x: 3, y: 2, vertical: true, length: 2, color: "sky" }
+], [ // 27
+    { x: 2, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 4, y: 2, vertical: true, length: 3, color: "orange" },
+    { x: 1, y: 3, vertical: false, length: 3, color: "blue" },
+    { x: 0, y: 1, vertical: true, length: 3, color: "yellow" },
+    { x: 4, y: 5, vertical: false, length: 2, color: "green" },
+    { x: 0, y: 0, vertical: false, length: 2, color: "lime" },
+    { x: 5, y: 3, vertical: true, length: 2, color: "pink" },
+    { x: 2, y: 0, vertical: true, length: 2, color: "orange" }, 
+    { x: 3, y: 4, vertical: true, length: 2, color: "purple" },
+    { x: 4, y: 0, vertical: false, length: 2, color: "sky" } 
+], [ // 28
+    { x: 3, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 5, y: 2, vertical: true, length: 3, color: "orange" },
+    { x: 3, y: 5, vertical: false, length: 3, color: "blue" },
+    { x: 2, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 2, y: 3, vertical: false, length: 2, color: "green" },
+    { x: 0, y: 0, vertical: false, length: 2, color: "lime" },
+    { x: 5, y: 0, vertical: true, length: 2, color: "purple" },
+    { x: 4, y: 3, vertical: true, length: 2, color: "purple" },
+    { x: 0, y: 1, vertical: true, length: 2, color: "orange" }, 
+    { x: 0, y: 3, vertical: false, length: 2, color: "blue" },
+    { x: 2, y: 4, vertical: true, length: 2, color: "pink" }, 
+    { x: 0, y: 4, vertical: false, length: 2, color: "yellow" },
+    { x: 3, y: 1, vertical: false, length: 2, color: "sky" }
+     
+], [ // 29
+    { x: 3, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 5, y: 0, vertical: true, length: 3, color: "orange" },
+    { x: 3, y: 3, vertical: true, length: 3, color: "blue" },
+    { x: 2, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 0, y: 0, vertical: false, length: 2, color: "sky" },
+    { x: 1, y: 4, vertical: false, length: 2, color: "purple" },
+    { x: 0, y: 4, vertical: true, length: 2, color: "orange" },
+    { x: 4, y: 0, vertical: true, length: 2, color: "pink" }, 
+    { x: 4, y: 3, vertical: false, length: 2, color: "lime" }
+     
+], [ // 30
+    { x: 0, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 1, y: 1, vertical: false, length: 3, color: "orange" },
+    { x: 4, y: 1, vertical: true, length: 3, color: "blue" },
+    { x: 2, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 5, y: 1, vertical: true, length: 3, color: "teal" },
+    { x: 4, y: 4, vertical: false, length: 2, color: "orange" },
+    { x: 0, y: 0, vertical: true, length: 2, color: "blue" },
+    { x: 3, y: 4, vertical: true, length: 2, color: "purple" },
+    { x: 1, y: 5, vertical: false, length: 2, color: "green" }, 
+    { x: 0, y: 3, vertical: false, length: 2, color: "lime" },
+    { x: 3, y: 2, vertical: true, length: 2, color: "pink" }, 
+    { x: 2, y: 2, vertical: true, length: 2, color: "sky" }
+     
+], 
+/* ----------------------
+        EXPERT
+-----------------------*/
+[ // 31
+    { x: 1, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 0, y: 2, vertical: true, length: 3, color: "yellow" },
+    { x: 3, y: 5, vertical: false, length: 3, color: "blue" }, 
+    { x: 3, y: 4, vertical: false, length: 3, color: "orange" }, 
+    { x: 0, y: 0, vertical: true, length: 2, color: "lime" }, 
+    { x: 1, y: 0, vertical: true, length: 2, color: "orange" }, 
+    { x: 2, y: 0, vertical: false, length: 2, color: "sky" },
+    { x: 4, y: 0, vertical: true, length: 2, color: "pink" },
+    { x: 5, y: 0, vertical: true, length: 2, color: "purple" }, 
+    { x: 2, y: 4, vertical: true, length: 2, color: "yellow" },
+    { x: 1, y: 3, vertical: false, length: 2, color: "blue" }, 
+    { x: 0, y: 5, vertical: false, length: 2, color: "purple" }, 
+    { x: 5, y: 2, vertical: true, length: 2, color: "green" },
+    { x: 3, y: 2, vertical: true, length: 2, color: "green" }
+
+], [ // 32
     { x: 2, y: 2, vertical: false, length: 2, color: "red" },
     { x: 0, y: 0, vertical: false, length: 3, color: "yellow" },
-    { x: 3, y: 0, vertical: true, length: 2, color: "green" }, //200
-    { x: 5, y: 0, vertical: true, length: 3, color: "blue" }, //300
-    { x: 1, y: 1, vertical: false, length: 2, color: "blue" }, //300
-    { x: 0, y: 3, vertical: false, length: 2, color: "pink" }, //700
-    { x: 2, y: 3, vertical: true, length: 2, color: "purple" },
+    { x: 3, y: 0, vertical: true, length: 2, color: "lime" }, 
+    { x: 5, y: 0, vertical: true, length: 3, color: "blue" }, 
+    { x: 1, y: 1, vertical: false, length: 2, color: "blue" }, 
+    { x: 0, y: 3, vertical: false, length: 2, color: "purple" }, 
+    { x: 2, y: 3, vertical: true, length: 2, color: "pink" },
     { x: 1, y: 4, vertical: true, length: 2, color: "green" },
-    { x: 2, y: 5, vertical: false, length: 2, color: "blue" }, //300
-    { x: 4, y: 5, vertical: false, length: 2, color: "yellow" },
-    { x: 4, y: 0, vertical: true, length: 3, color: "orange" }, //700
-    { x: 0, y: 1, vertical: true, length: 2, color: "orange" }, //700
-    { x: 3, y: 4, vertical: false, length: 2, color: "pink" },
+    { x: 2, y: 5, vertical: false, length: 2, color: "blue" }, 
+    { x: 4, y: 5, vertical: false, length: 2, color: "purple" },
+    { x: 4, y: 0, vertical: true, length: 3, color: "orange" }, 
+    { x: 0, y: 1, vertical: true, length: 2, color: "orange" }, 
+    { x: 3, y: 4, vertical: false, length: 2, color: "yellow" }
+], [ // 33
+    { x: 2, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 2, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 0, y: 5, vertical: false, length: 3, color: "orange" }, 
+    { x: 0, y: 0, vertical: false, length: 2, color: "lime" }, 
+    { x: 5, y: 0, vertical: true, length: 2, color: "orange" }, 
+    { x: 0, y: 1, vertical: true, length: 2, color: "sky" },
+    { x: 2, y: 1, vertical: false, length: 2, color: "pink" },
+    { x: 4, y: 1, vertical: true, length: 2, color: "purple" }, 
+    { x: 0, y: 3, vertical: false, length: 2, color: "pink" },
+    { x: 0, y: 4, vertical: false, length: 2, color: "purple" }, 
+    { x: 3, y: 3, vertical: false, length: 2, color: "yellow" },
+    { x: 2, y: 3, vertical: true, length: 2, color: "blue" }, 
+    { x: 4, y: 1, vertical: true, length: 2, color: "purple" }, 
+    { x: 3, y: 4, vertical: true, length: 2, color: "green" },
+    { x: 5, y: 2, vertical: true, length: 2, color: "green" }
+], [ // 34
+    { x: 0, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 3, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 3, y: 5, vertical: false, length: 3, color: "orange" }, 
+    { x: 0, y: 0, vertical: true, length: 2, color: "lime" }, 
+    { x: 1, y: 0, vertical: false, length: 2, color: "orange" }, 
+    { x: 5, y: 0, vertical: true, length: 2, color: "yellow" },
+    { x: 2, y: 1, vertical: true, length: 2, color: "pink" },
+    { x: 5, y: 2, vertical: true, length: 2, color: "purple" }, 
+    { x: 2, y: 3, vertical: false, length: 2, color: "green" },
+    { x: 0, y: 3, vertical: false, length: 2, color: "purple" }, 
+    { x: 2, y: 4, vertical: true, length: 2, color: "sky" },
+    { x: 4, y: 3, vertical: true, length: 2, color: "blue" }
+], [ // 35
+    { x: 2, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 4, y: 2, vertical: true, length: 3, color: "yellow" },
+    { x: 0, y: 3, vertical: true, length: 3, color: "orange" }, 
+    { x: 0, y: 0, vertical: false, length: 2, color: "lime" }, 
+    { x: 3, y: 0, vertical: true, length: 2, color: "orange" }, 
+    { x: 5, y: 0, vertical: true, length: 2, color: "sky" },
+    { x: 0, y: 1, vertical: true, length: 2, color: "pink" },
+    { x: 1, y: 1, vertical: true, length: 2, color: "purple" }, 
+    { x: 5, y: 2, vertical: true, length: 2, color: "purple" },
+    { x: 3, y: 5, vertical: false, length: 2, color: "green" }, 
+    { x: 1, y: 3, vertical: false, length: 2, color: "green" }, 
+    { x: 2, y: 4, vertical: true, length: 2, color: "yellow" },    
+    { x: 3, y: 3, vertical: true, length: 2, color: "blue" }
+], [ // 36
+    { x: 1, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 0, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 2, y: 3, vertical: true, length: 3, color: "orange" }, 
+    { x: 1, y: 0, vertical: false, length: 2, color: "purple" }, 
+    { x: 3, y: 0, vertical: true, length: 2, color: "lime" }, 
+    { x: 4, y: 1, vertical: false, length: 2, color: "sky" },
+    { x: 3, y: 2, vertical: true, length: 2, color: "pink" },
+    { x: 4, y: 3, vertical: false, length: 2, color: "blue" }, 
+    { x: 3, y: 4, vertical: false, length: 2, color: "green" }, 
+    { x: 5, y: 4, vertical: true, length: 2, color: "orange" }
+], [ // 37
+    { x: 2, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 0, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 4, y: 0, vertical: true, length: 3, color: "orange" }, 
+    { x: 0, y: 3, vertical: false, length: 2, color: "purple" }, 
+    { x: 3, y: 0, vertical: true, length: 2, color: "lime" }, 
+    { x: 0, y: 1, vertical: true, length: 2, color: "green" },
+    { x: 1, y: 1, vertical: false, length: 2, color: "sky" },
+    { x: 4, y: 4, vertical: false, length: 2, color: "blue" }, 
+    { x: 2, y: 3, vertical: true, length: 2, color: "pink" }, 
+    { x: 5, y: 0, vertical: true, length: 2, color: "green" },
+    { x: 1, y: 4, vertical: true, length: 2, color: "orange" }, 
+    { x: 2, y: 5, vertical: false, length: 2, color: "yellow" }, 
+    { x: 4, y: 5, vertical: false, length: 2, color: "purple" }
+    
+], [ // 38
+    { x: 3, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 0, y: 0, vertical: true, length: 3, color: "yellow" },
+    { x: 5, y: 1, vertical: true, length: 3, color: "orange" }, 
+    { x: 0, y: 3, vertical: false, length: 3, color: "blue" }, 
+    { x: 1, y: 0, vertical: true, length: 2, color: "lime" }, 
+    { x: 4, y: 0, vertical: true, length: 2, color: "sky" },
+    { x: 2, y: 1, vertical: true, length: 2, color: "pink" }, 
+    { x: 2, y: 0, vertical: false, length: 2, color: "orange" }, 
+    { x: 3, y: 3, vertical: true, length: 2, color: "purple" }, 
+    { x: 2, y: 4, vertical: true, length: 2, color: "green" },
+    { x: 0, y: 5, vertical: false, length: 2, color: "blue" },
+    { x: 4, y: 4, vertical: false, length: 2, color: "green" },
+    { x: 3, y: 5, vertical: false, length: 2, color: "yellow" }    
+], [ // 39
+    { x: 1, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 3, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 4, y: 2, vertical: true, length: 3, color: "orange" }, 
+    { x: 2, y: 0, vertical: true, length: 2, color: "lime" }, 
+    { x: 4, y: 1, vertical: false, length: 2, color: "sky" },
+    { x: 0, y: 2, vertical: true, length: 2, color: "pink" }, 
+    { x: 3, y: 1, vertical: true, length: 2, color: "pink" }, 
+    { x: 5, y: 2, vertical: true, length: 2, color: "purple" }, 
+    { x: 1, y: 3, vertical: true, length: 2, color: "green" },
+    { x: 2, y: 4, vertical: false, length: 2, color: "blue" },
+    { x: 3, y: 5, vertical: false, length: 2, color: "green" },
+    { x: 1, y: 5, vertical: false, length: 2, color: "purple" },
+    { x: 5, y: 4, vertical: true, length: 2, color: "yellow" },
+    { x: 0, y: 4, vertical: true, length: 2, color: "orange" },
+    { x: 0, y: 4, vertical: true, length: 2, color: "pruple" }    
+], [ // 40
+    { x: 0, y: 2, vertical: false, length: 2, color: "red" },
+    { x: 3, y: 0, vertical: false, length: 3, color: "yellow" },
+    { x: 5, y: 3, vertical: true, length: 3, color: "orange" }, 
+    { x: 0, y: 5, vertical: false, length: 3, color: "blue" },
+    { x: 0, y: 0, vertical: true, length: 2, color: "lime" }, 
+    { x: 2, y: 1, vertical: false, length: 2, color: "sky" },
+    { x: 4, y: 1, vertical: true, length: 2, color: "pink" }, 
+    { x: 1, y: 0, vertical: false, length: 2, color: "orange" }, 
+    { x: 2, y: 2, vertical: true, length: 2, color: "purple" }, 
+    { x: 0, y: 3, vertical: false, length: 2, color: "green" },
+    { x: 3, y: 3, vertical: false, length: 2, color: "blue" },
+    { x: 3, y: 4, vertical: true, length: 2, color: "green" },
+    { x: 1, y: 4, vertical: false, length: 2, color: "yellow" }    
 ]]
