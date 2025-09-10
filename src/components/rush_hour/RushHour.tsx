@@ -4,6 +4,7 @@ import Draggable, { DraggableData, DraggableEvent } from "react-draggable"; // T
 import { isLegalMove, canPlaceCustom, isLegalCustomMove } from "../../isLegalMove";
 import { custom_level, levels } from "./RushHourLevels";
 import React from "react";
+import { addCustomCar } from "./CustomLevel";
 
 // function to take a cars list and convert it to a id using a hash
 function carsToId(cars: Car[]): string {
@@ -14,6 +15,29 @@ function carsToId(cars: Car[]): string {
     .join(",");
 }
 
+enum gameState {
+    attemptingLevel,
+    levelComplete,
+    settingCustomLevel,
+    selectingLevel
+}
+
+enum carColors {
+  red = "red", 
+  green = "green", 
+  blue = "blue", 
+  orange = "orange", 
+  yellow = "yellow",
+  purple = "purple",
+  pink = "pink",
+  teal = "teal",
+  cyan = "cyan",
+  lime = "lime",
+  amber = "amber",
+  sky = "sky",
+  emerald = "emerald",
+}
+
 const initialCars: Car[] = [
   { x: 0, y: 2, vertical: false, length: 2, color: "red" },
   { x: 4, y: 1, vertical: true, length: 3, color: "blue" },
@@ -22,8 +46,6 @@ const initialCars: Car[] = [
 
 const initialStates = { [carsToId(initialCars)]: initialCars };
 let previousState : Car[] = initialCars;
-//let levelComplete : boolean = false;
-//let selecting_level : boolean = false;
 let currentLevel : number = 0;
 
 export default function RushHour() {
@@ -32,10 +54,8 @@ export default function RushHour() {
   const [stateTransitions, setStateTransitions] = useState<[stateId, stateId][]>([]);
   const [message, _] = useState<string | null>(null);
   const [transitionsEdges, setTransitionsEdges] = useState<Record<stateIdPair, [stateId, stateId]>>({});
-  const [levelComplete, setLevelComplete] = useState(false);
   const [levelDifficulty, setLevelDifficulty] = useState(-1);
-  const [selecting_level, setSelectingLevel] = useState(false);
-  const [settingCustomLevel, setSettingCustomLevel] = useState(false);
+  const [currentGameState, setNewGameState] = useState<gameState>(gameState.selectingLevel);
   
   //for adding custom car
   const [smallCustomCarVisible, setSmallCustomCarVisible] = useState(false);
@@ -43,6 +63,7 @@ export default function RushHour() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [customCarPlaced, setCustomCarPlaced] = useState(false);
   const [customCarRotation, setCustomCarRotation] = useState(0);
+  const [customCarColor, setCustomCarColor] = useState(carColors.green);
   //Reference to the 6x6 rush-hour grid.
   const gridRef = useRef<HTMLDivElement>(null);
   const [customCarX, customCarY] = handleCustomCarOnGridMovement();
@@ -55,7 +76,6 @@ export default function RushHour() {
   const [usingCam, setUsingCam] = useState(true);
   const usingCamRef = useRef(usingCam);
   const [camCars, setCamCars] = useState<Car[]>([]);
-  const selectingLevelRef = useRef(selecting_level); 
   const prevCarsRef = useRef<Car[]>(cars);
 
   function setNewCarsState(newCars: Car[]) {
@@ -86,17 +106,10 @@ export default function RushHour() {
   function restart_level() {
     setCars(levels[currentLevel]);
 
-    if (settingCustomLevel) {
+    if (currentGameState === gameState.settingCustomLevel) {
       resetGraph(currentLevel);
-      setSettingCustomLevel(false);
-    }
-  }
-
-  function load_custom_level() {
-    setLevelComplete(false);
-    setCars(custom_level);
-    resetGraph(0);
-    setSelectingLevel(true);
+      setNewGameState(gameState.attemptingLevel);
+    }  
   }
 
   function resetGraph(levelNum : number) {
@@ -106,12 +119,11 @@ export default function RushHour() {
   }
     
   function load_new_level(levelNum : number) {
-    setLevelComplete(false);
     setCars(levels[levelNum]);
     resetGraph(levelNum);
     previousState = levels[levelNum];
     currentLevel = levelNum;
-    setSelectingLevel(true);
+    setNewGameState(gameState.selectingLevel);
 
     if (usingCam) {
       console.log("trying to send");
@@ -162,19 +174,17 @@ export default function RushHour() {
       if (smallCustomCarVisible) {      
         setCustomCarPlaced(true);
         if (canPlaceCustom(cars, Math.floor((mousePosition.x - 230) / 63), Math.floor((mousePosition.y - 30) / 64), 2, (customCarRotation / 90) % 2 === 0)) {
-          addCustomCar(2);
+          setCars([...cars, ...addCustomCar(2, customCarRotation, mousePosition, customCarColor)]);
         }
         setSmallCustomCarVisible(false);
       } else if (largeCustomCarVisible) {
         setCustomCarPlaced(true);
         if (canPlaceCustom(cars, Math.floor((mousePosition.x - 230) / 63), Math.floor((mousePosition.y - 30) / 64), 3, (customCarRotation / 90) % 2 === 0)) {
-          addCustomCar(3);
+          setCars([...cars, ...addCustomCar(3, customCarRotation, mousePosition, customCarColor)]);
         }
         setLargeCustomCarVisible(false);
       }
     }
-    //console.log("event type: ", event.detail, ", ", smallCustomCarVisible, ", ", largeCustomCarVisible);
-
   };
 
   function handleAddSmallCar() {
@@ -244,17 +254,6 @@ export default function RushHour() {
     return [mousePosition.x, mousePosition.y];
   }
 
-  function addCustomCar(length : number) {
-    var addedCar = {
-      x : Math.floor((mousePosition.x - 230) / 63), 
-      y : Math.floor((mousePosition.y - 30) / 64), 
-      vertical: ((customCarRotation / 90) % 2 !== 0), 
-      length: length, 
-      color: "green"};
-    custom_level.push(addedCar);
-    cars.push(addedCar);
-  }
-
   function clearCustomLevel() {
     custom_level.length = 0;
     custom_level.push({ x: 0, y: 2, vertical: false, length: 2, color: "red" });
@@ -266,15 +265,14 @@ export default function RushHour() {
   ---------------------------------------------------------------*/
   useEffect(() => {
     usingCamRef.current = usingCam;
-    selectingLevelRef.current = selecting_level;
-  }, [usingCam, selecting_level]);
+  }, [usingCam]);
 
   useEffect(() => {
     ws.current = new WebSocket('ws://localhost:8000/ws');
 
     console.log("Connected at least")
 
-    ws.current.onmessage = (message) => {
+    ws.current.onmessage = (message: { data: string; }) => {
       let data = JSON.parse(message.data);  
       let cars_arr : Car[]  = data["cars"]; 
       let is_legal_board = data["is_legal_board"]
@@ -283,9 +281,8 @@ export default function RushHour() {
       if (is_legal_board) {
         setCamCars(cars_arr);
 
-        if (usingCamRef.current && !selectingLevelRef.current) {
+        if (usingCamRef.current && currentGameState !== gameState.selectingLevel) {
           setNewCarsState(cars_arr);
-          //setCars(cars_arr);
         }
       }
     };
@@ -294,7 +291,7 @@ export default function RushHour() {
       ws.current?.send(JSON.stringify({ event: 'connected' }));
     };
 
-    ws.current.onerror = (error) => {
+    ws.current.onerror = (error: any) => {
       console.error("WebSocket Error:", error);
     };    
 
@@ -339,7 +336,7 @@ export default function RushHour() {
     if (oldCar.x === newCar.x && oldCar.y === newCar.y) {
       return;
     }
-    if (!settingCustomLevel && isLegalMove(cars, oldCar, newCar)) {
+    if (currentGameState !== gameState.settingCustomLevel && isLegalMove(cars, oldCar, newCar)) {
       let newCars = cars.map((car) =>
         car.x === oldCar.x && car.y === oldCar.y ? newCar : car,
       );
@@ -348,11 +345,9 @@ export default function RushHour() {
       // Check if the red car is at the exit
       const redCar = newCars[0];
       if (redCar.x === 4 && redCar.y === 2 && !redCar.vertical) {
-        setLevelComplete(true);
-        setSelectingLevel(false);
-        //console.log("Congratulations! You've reached the exit!");
+        setNewGameState(gameState.levelComplete);
       }
-    } else if (settingCustomLevel && isLegalCustomMove(cars, oldCar, newCar)) {
+    } else if (currentGameState === gameState.settingCustomLevel && isLegalCustomMove(cars, oldCar, newCar)) {
       let newCars = cars.map((car) =>
         car.x === oldCar.x && car.y === oldCar.y ? newCar : car,
       );
@@ -364,11 +359,9 @@ export default function RushHour() {
     }
   }
 
-  //console.log("cars", cars);
-  //console.log("state", state);
-  //console.log("states", states);
-  //console.log("stateTransitions", stateTransitions);
-
+  /***********************
+        GUI Component
+  ***********************/
   return (
     <div className="flex flex-row flex-1 items-center px-2 gap-4 h-full w-full" onClick={handleMouseClick}>
       {/* column of buttons for options */}
@@ -389,8 +382,7 @@ export default function RushHour() {
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
             onClick={() => {
-              setLevelComplete(true);
-              setSelectingLevel(false);
+              setNewGameState(gameState.levelComplete);
               setLevelDifficulty(-1);
             }}
           >
@@ -399,8 +391,9 @@ export default function RushHour() {
           <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
             onClick={() => {
-              setSettingCustomLevel(true);
-              load_custom_level();
+              setNewGameState(gameState.settingCustomLevel);          
+              setCars(custom_level);
+              resetGraph(0);
             }}
           >
             Set custom board
@@ -499,11 +492,9 @@ export default function RushHour() {
               );
             })}
           </div>
-        </div>
-         
+        </div> 
         <div className="flex flex-col items-center bg-white">
-          {/*<div className="text-2xl text-center h-12">{message}</div>*/}
-          {!levelComplete && !selecting_level && !settingCustomLevel &&
+          {currentGameState === gameState.attemptingLevel &&
           <Graph
             state={state}
             states={states}
@@ -511,7 +502,7 @@ export default function RushHour() {
             onNodeHover={setHoveredNodeId}
           />
           }
-          {levelComplete && !selecting_level && !settingCustomLevel &&
+          {currentGameState === gameState.levelComplete &&
           levelDifficulty == -1 &&
           <div className="flex flex-col gap-2 p-4">   
             <h1 className="text-3xl text-center my-4">Congrats! You have completed the level</h1>
@@ -523,7 +514,7 @@ export default function RushHour() {
           </button>
             <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
-            onClick={() => setLevelDifficulty(0)} //load_new_level(1)}
+            onClick={() => setLevelDifficulty(0)}
           >
             Beginner {/*1*/}
           </button>
@@ -546,7 +537,7 @@ export default function RushHour() {
             Expert {/*32*/}
           </button>
           </div>}
-          {levelComplete && !selecting_level && !settingCustomLevel &&
+          {currentGameState === gameState.levelComplete &&
           levelDifficulty != -1 && <div className="flex flex-col gap-2 p-4">   
           <h1 className="text-3xl text-center my-4">Congrats! Select from the {numToDifficulty(levelDifficulty)[0]} levels</h1>
           
@@ -561,12 +552,9 @@ export default function RushHour() {
         </button>
       ))}
       </div>
-        </div>}
-          
-          {/* make this actually read what is happening from the sensors once we get that working 
-          graph automatically reappears after first move once start button is pressed, once working 
-          change to once the expected board and matches up with the actual board*/}
-          {selecting_level && !settingCustomLevel &&
+          </div>}
+          {/* selecting a new level */}
+          {currentGameState === gameState.selectingLevel &&
           <div className="flex flex-col gap-2 p-4">   
             {usingCam && <h3 className="text-3xl text-center my-4">This is what your board looks like right now</h3>}
             {/*outside/border*/}
@@ -632,8 +620,7 @@ export default function RushHour() {
             <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
             onClick={() => {
-              setLevelComplete(false);
-              setSelectingLevel(false);
+              setNewGameState(gameState.attemptingLevel);
               setLevelDifficulty(-1);
             }}
           >
@@ -642,7 +629,7 @@ export default function RushHour() {
             
           </div>}
           {/* Setting a custom level */}
-          {settingCustomLevel &&
+          {currentGameState === gameState.settingCustomLevel &&
             <div
             className="relative flex flex-col items-center justify-center bg-gray-300 p-2 border-4 border-gray-700 max-w-[408px] min-w-[408px] min-h-[410px]"
             >
@@ -662,9 +649,8 @@ export default function RushHour() {
             <button
             className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400 mb-5"
             onClick={() => {
-              setLevelComplete(false);
-              setSelectingLevel(false);
-              setSettingCustomLevel(false);
+              setNewGameState(gameState.attemptingLevel);
+              //do some stuff to reset the graph here
             }}
           >
             Start
@@ -678,9 +664,26 @@ export default function RushHour() {
           >
             Clear
           </button>
+
+          {//custom car color selection
+          }
+          <div className="grid grid-flow-col grid-rows-2 gap-4">
+            {Object.values(carColors).filter(color => color !== carColors.red).map((car_color) => 
+            (
+              <button
+                className={`px-4 py-4 bg-${car_color}-500 mb-5`}
+                onClick={() => {
+                  setCustomCarColor(car_color);
+                }}
+              >
+              </button>
+            ))}
+          </div>
+
+          {/*actual car being added*/}
             {smallCustomCarVisible && !largeCustomCarVisible && (
               <div
-                className="fixed w-32 h-16 bg-green-500 opacity-75 pointer-events-none"
+                className={`fixed w-32 h-16 bg-${customCarColor}-500 opacity-75 pointer-events-none`}
                 style={{
                   top: `${customCarY}px`,
                   left: `${customCarX}px`,
@@ -691,7 +694,7 @@ export default function RushHour() {
             )}
             {largeCustomCarVisible && !smallCustomCarVisible && (
               <div
-                className="fixed w-32 h-16 bg-green-500 opacity-75 pointer-events-none"
+                className={`fixed w-32 h-16 bg-${customCarColor}-500 opacity-75 pointer-events-none`}
                 style={{
                   top: `${customCarY}px`,
                   left: `${customCarX}px`,
