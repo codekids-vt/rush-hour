@@ -43,6 +43,7 @@ function carsOnPath(otherCars: Car[], pathTaken: number[]) {
       if (car.x < rightX && car.x > leftX) {
         //other car is located between x coords
         if (car.y == movedCarY) {
+          console.log("Car Y on path");
           //if other car's Y is located along path (covers all horizontal)
           return true;
         }
@@ -51,8 +52,9 @@ function carsOnPath(otherCars: Car[], pathTaken: number[]) {
         if (
           car.vertical &&
           car.y < movedCarY &&
-          car.y + car.length >= movedCarY
+          car.y + car.length > movedCarY
         ) {
+          console.log("Car bottom on path");
           return true;
         }
       }
@@ -62,10 +64,11 @@ function carsOnPath(otherCars: Car[], pathTaken: number[]) {
       let bottomY = pathTaken[3];
       let topY = pathTaken[2];
 
-      if (car.x < bottomY && car.x > topY) {
+      if (car.y < bottomY && car.y > topY) {
         //other car is located between y coords
         if (car.x == movedCarX) {
           //if other car's X is located along path (covers all vertical)
+          console.log("vertical covered");
           return true;
         }
 
@@ -73,8 +76,9 @@ function carsOnPath(otherCars: Car[], pathTaken: number[]) {
         if (
           !car.vertical &&
           car.x < movedCarX &&
-          car.x + car.length >= movedCarX
+          car.x + car.length > movedCarX
         ) {
+          console.log("Vertical path covered");
           return true;
         }
       }
@@ -160,7 +164,7 @@ export function checkIsLegalMove(cars: Car[], newCar: Car): boolean {
     return false;
   }
 
-  console.log(newCar);
+  //console.log(newCar);
 
   // check that the car is not going off the board
   let newCarCells = Array.from({ length: newCar.length }, (_, i) => {

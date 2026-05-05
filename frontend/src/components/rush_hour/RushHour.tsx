@@ -8,7 +8,6 @@ import {
   gameState,
   RushHourLevel,
   AuthState,
-  carColors,
 } from "../../../../shared/types";
 import SideBar from "./SideBar";
 import SelectNewLevelUI from "./SelectNewLevel";
@@ -32,14 +31,14 @@ const initialCars: Car[] = [
 
 const initialStates = { [carsToId(initialCars)]: initialCars };
 let previousState: Car[] = initialCars;
-let currentLevel: number = 0;
+let currentLevelIndex: number = 0;
 
 export function RushHour(rh: AuthState) {
   const usingMockUser: boolean = rh.user != null;
-  const [states, setStates] = useState<Record<stateId, Car[]>>(initialStates);
-  /*const [stateTransitions, setStateTransitions] = useState<
+  const [states, setStates] = useState<Record<stateId, Car[]>>({ "": [] });
+  const [stateTransitions, setStateTransitions] = useState<
     [stateId, stateId][]
-  >([]);*/
+  >([]);
   const [transitionsEdges, setTransitionsEdges] = useState<
     Record<stateIdPair, [stateId, stateId]>
   >({});
@@ -49,6 +48,7 @@ export function RushHour(rh: AuthState) {
 
   //Reference to the 6x6 rush-hour grid.
   const gridRef = useRef<HTMLDivElement>(null);
+  const [restartingLevel, setRestartingLevel] = useState(false);
 
   //Handles hovering mouse over node
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
@@ -61,6 +61,9 @@ export function RushHour(rh: AuthState) {
   const prevCarsRef = useRef<Car[]>([]); //cars);
 
   const [allGameLevels, setAllGameLevels] = useState<RushHourLevel[]>([]);
+  const [state, setState] = useState<string>(
+    carsToId(allGameLevels[currentLevelIndex]?.startingPositions ?? []),
+  );
 
   /**
    * Updages graph after move
@@ -71,13 +74,13 @@ export function RushHour(rh: AuthState) {
     // utility to update cars, states, and stateTransitions at the same time
     const lastState = carsToId(prevCarsRef.current);
     const newState = carsToId(newCars);
-    //previousState = cars;
+    setState(newState);
     setStates((states) => {
       return { ...states, [newState]: newCars };
     });
-    /*setStateTransitions((transitions) => {
+    setStateTransitions((transitions) => {
       return [...transitions, [lastState, newState]];
-    });*/
+    });
     setTransitionsEdges((edges) => {
       return { ...edges, [`${lastState}-${newState}`]: [lastState, newState] };
     });
@@ -88,35 +91,39 @@ export function RushHour(rh: AuthState) {
   /* ---------------------------------
     Left Column Buttons Functionality
   ----------------------------------*/
-  function undo_last_move() {
+  function undoLastMove() {
     setNewCarsState(previousState);
   }
 
-  function restart_level() {
-    //setCars(allGameLevels[currentLevel].startingPositions);
-    //TODO: Actually fix this
-    load_new_level(currentLevel + 1);
+  function restartLevel() {
+    setRestartingLevel(true);
 
-    if (currentGameState === gameState.settingCustomLevel) {
-      resetGraph(currentLevel);
-      setNewGameState(gameState.attemptingLevel);
-    }
+    //prevCarsRef.current = allGameLevels[currentLevelIndex].startingPositions;
+    //setState(carsToId(allGameLevels[currentLevelIndex].startingPositions));
+    //previousState = allGameLevels[currentLevelIndex].startingPositions;
+    resetGraph(currentLevelIndex);
   }
 
-  function resetGraph(levelNum: number) {
+  function resetGraph(levelIndex: number) {
+    //console.log("Graph being reset");
+    const newKey = carsToId(allGameLevels[levelIndex].startingPositions);
+
     setStates({
-      [carsToId(allGameLevels[levelNum].startingPositions)]:
-        allGameLevels[levelNum].startingPositions,
+      [newKey]: allGameLevels[levelIndex].startingPositions,
     });
-    //setStateTransitions([]);
+    setState(newKey);
+    setStateTransitions([]);
     setTransitionsEdges({});
   }
 
-  function load_new_level(levelNum: number) {
+  function loadNewLevel(levelNum: number) {
     //setCars(allGameLevels[levelNum].startingPositions);
-    resetGraph(levelNum);
-    previousState = allGameLevels[levelNum].startingPositions;
-    currentLevel = levelNum - 1;
+    const levelIndex = levelNum - 1;
+    resetGraph(levelIndex);
+
+    prevCarsRef.current = allGameLevels[levelIndex].startingPositions;
+    previousState = allGameLevels[levelIndex].startingPositions;
+    currentLevelIndex = levelIndex;
     setNewGameState(gameState.settingLevelUp);
 
     if (usingCam) {
@@ -152,8 +159,15 @@ export function RushHour(rh: AuthState) {
   }, [usingMockUser]);
 
   useEffect(() => {
-    console.log(allGameLevels[currentLevel]?.startingPositions ?? []);
-  }, [currentGameState]);
+    if (!restartingLevel) {
+      console.log("Level should restart", restartingLevel);
+      setRestartingLevel(false);
+    }
+  }, [restartingLevel]);
+  /*
+  useEffect(() => {
+    console.log(allGameLevels[currentLevelIndex]?.startingPositions ?? []);
+  }, [currentGameState]);*/
 
   /*---------------------------------------------------------------
     Handles all of the web socket stuff with the camera backend
@@ -162,7 +176,6 @@ export function RushHour(rh: AuthState) {
     usingCamRef.current = usingCam;
   }, [usingCam]);
 
-  let state = carsToId(allGameLevels[currentLevel]?.startingPositions ?? []);
   let grid: string[][] = [];
   for (let i = 0; i < 6; i++) {
     grid.push([]);
@@ -181,8 +194,8 @@ export function RushHour(rh: AuthState) {
     >
       <SideBar
         currentGameState={currentGameState}
-        undoLastMove={undo_last_move}
-        restartLevel={restart_level}
+        undoLastMove={undoLastMove}
+        restartLevel={restartLevel}
         selectNewLevel={() => {
           setNewGameState(gameState.selectingLevel);
         }}
@@ -211,7 +224,7 @@ export function RushHour(rh: AuthState) {
             <SelectNewLevelUI
               gameLevels={allGameLevels}
               loadNewLevel={(levelNumber: number) => {
-                load_new_level(levelNumber);
+                loadNewLevel(levelNumber);
               }}
               numToDifficulty={(difficulty: number) =>
                 numToDifficulty(difficulty)
@@ -224,7 +237,22 @@ export function RushHour(rh: AuthState) {
           <>
             <div className="flex flex-col bg-white border-2 box-border h-full w-full min-h-0">
               <RushHourBoard
-                level={allGameLevels[currentLevel]}
+                level={
+                  restartingLevel
+                    ? {
+                        levelID: -1,
+                        levelName: "Loading",
+                        startingPositions:
+                          allGameLevels[currentLevelIndex].startingPositions,
+                        isCustom: false,
+                      }
+                    : hoveredNodeId == null
+                      ? allGameLevels[currentLevelIndex]
+                      : {
+                          ...allGameLevels[currentLevelIndex],
+                          startingPositions: states[hoveredNodeId],
+                        }
+                }
                 isHovering={hoveredNodeId != null}
                 canMove={currentGameState === gameState.attemptingLevel}
                 levelCompleted={function (): void {
@@ -244,7 +272,9 @@ export function RushHour(rh: AuthState) {
                   state={state}
                   states={states}
                   stateTransitions={transitionsEdges}
-                  onNodeHover={setHoveredNodeId}
+                  onNodeHover={(newNodeID) => {
+                    setHoveredNodeId(newNodeID);
+                  }}
                 />
               )}
               {/* Setting level up */}
@@ -257,81 +287,68 @@ export function RushHour(rh: AuthState) {
                   )}
                   {/*outside/border*/}
                   {usingCam && (
-                    <div className="relative flex items-center justify-center bg-gray-300 p-2 border-4 border-gray-700 max-w-[408px] min-w-[408px]">
-                      {/*right border*/}
-                      <div className="absolute top-[33.65%] right-0 w-[24px] h-[16.66%] bg-white border-4 border-gray-700 border-r-0"></div>
-                      {/*grid/board*/}
-                      <div className="relative grid grid-cols-6 aspect-square w-96 h-96 grid-rows-6 justify-between gap-1 bg-black p-1">
-                        {grid.map((row, i) =>
-                          row.map((_, j) => {
-                            const isExitGap =
-                              j === 5 && i === 2 ? "border-r-transparent" : "";
-
-                            return (
-                              <div
-                                key={`${i}-${j}`}
-                                className={`bg-white aspect-square ${isExitGap}`}
-                              >
-                                {/* {j},{i} */}
-                              </div>
-                            );
-                          }),
-                        )}
-                        {/*camCars.map((car, i) => {
-                          const inset = 4;
-                          const carWidth =
-                            (car.vertical
-                              ? cellWidth
-                              : cellWidth * car.length) -
-                            inset * 2;
-                          const carHeight =
-                            (car.vertical
-                              ? cellWidth * car.length
-                              : cellWidth) -
-                            inset * 2;
-
-                          const carUnitWidth = car.vertical ? 1 : car.length;
-                          const carUnitHeight = car.vertical ? car.length : 1;
-
-                          // console.log(car, carUnitWidth, carUnitHeight);
-
-                          return (
-                            <Draggable
-                              key={i}
-                              axis={car.vertical ? "y" : "x"}
-                              handle=".handle"
-                              grid={[cellWidth, cellWidth]}
-                              scale={1}
-                              position={{
-                                x: car.x * cellWidth,
-                                y: car.y * cellWidth,
-                              }}
-                              bounds={{
-                                left: 0,
-                                top: 0,
-                                right: cellWidth * (6 - carUnitWidth),
-                                bottom: cellWidth * (6 - carUnitHeight),
-                              }}
-                              onStop={() => {
-                                throw new Error("this isnt implemented yet");
-                              }} //handleDragStop}
-                            >
-                              <div
-                                className={`absolute bg-${car.color}-500 handle rounded-xl`}
-                                style={{
-                                  width: carWidth,
-                                  height: carHeight,
-                                  top: 2 + inset,
-                                  left: 2 + inset,
-                                }}
-                                id={JSON.stringify(car)}
-                              ></div>
-                            </Draggable>
-                          );
-                        })*/}
-                      </div>
-                    </div>
+                    <RushHourBoard
+                      level={allGameLevels[currentLevelIndex]} //TODO: Change back to camCars
+                      isHovering={false}
+                      canMove={false}
+                      levelCompleted={() => {}}
+                      setNewCarsState={() => {}}
+                      gridRef={gridRef}
+                    />
                   )}
+                  {/*camCars.map((car, i) => {
+                    const inset = 4;
+                    const carWidth =
+                      (car.vertical
+                        ? cellWidth
+                        : cellWidth * car.length) -
+                      inset * 2;
+                    const carHeight =
+                      (car.vertical
+                        ? cellWidth * car.length
+                        : cellWidth) -
+                      inset * 2;
+
+                    const carUnitWidth = car.vertical ? 1 : car.length;
+                    const carUnitHeight = car.vertical ? car.length : 1;
+
+                    // console.log(car, carUnitWidth, carUnitHeight);
+
+                    return (
+                      <Draggable
+                        key={i}
+                        axis={car.vertical ? "y" : "x"}
+                        handle=".handle"
+                        grid={[cellWidth, cellWidth]}
+                        scale={1}
+                        position={{
+                          x: car.x * cellWidth,
+                          y: car.y * cellWidth,
+                        }}
+                        bounds={{
+                          left: 0,
+                          top: 0,
+                          right: cellWidth * (6 - carUnitWidth),
+                          bottom: cellWidth * (6 - carUnitHeight),
+                        }}
+                        onStop={() => {
+                          throw new Error("this isnt implemented yet");
+                        }} //handleDragStop}
+                      >
+                        <div
+                          className={`absolute bg-${car.color}-500 handle rounded-xl`}
+                          style={{
+                            width: carWidth,
+                            height: carHeight,
+                            top: 2 + inset,
+                            left: 2 + inset,
+                          }}
+                          id={JSON.stringify(car)}
+                        ></div>
+                      </Draggable>
+                    );
+                  })*/}
+
                   <button
                     className="px-4 py-2 bg-primary-green rounded-full text-white bg-green-400"
                     onClick={() => {
@@ -347,7 +364,7 @@ export function RushHour(rh: AuthState) {
               {currentGameState === gameState.levelComplete && (
                 <div className="flex flex-col gap-2 p-4">
                   <h3 className="text-3xl text-center my-4">
-                    {`Congratulations you completed level ${allGameLevels[currentLevel].levelName}`}
+                    {`Congratulations you completed level ${allGameLevels[currentLevelIndex].levelName}`}
                   </h3>
 
                   <button
@@ -357,11 +374,11 @@ export function RushHour(rh: AuthState) {
 
                       await markLevelComplete(
                         rh.token ?? "",
-                        allGameLevels[currentLevel],
+                        allGameLevels[currentLevelIndex],
                       );
                       setAllGameLevels((prev) => {
                         const updated = [...prev];
-                        updated[currentLevel].isComplete = true;
+                        updated[currentLevelIndex].isComplete = true;
                         return updated;
                       });
                     }}

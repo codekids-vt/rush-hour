@@ -1,7 +1,6 @@
 import { RushHourLevel, Car, cellWidth } from "../../../../shared/types";
-import { useState } from "react";
-import { DraggableData, DraggableEvent } from "react-draggable"; // The default
-import { checkIsLegalMove, isLegalMove } from "../../isLegalMove";
+import { useEffect, useRef, useState } from "react";
+import { checkIsLegalMove } from "../../isLegalMove";
 import React from "react";
 
 export default function RushHourBoard({
@@ -39,120 +38,87 @@ export default function RushHourBoard({
     });
   });
 
+  const savedCarsRef = useRef<Car[] | null>(null);
+
+  useEffect(() => {
+    if (isHovering) {
+      savedCarsRef.current = cars;
+      setCars(level.startingPositions);
+    } else {
+      if (savedCarsRef.current) {
+        setCars(savedCarsRef.current);
+        //savedCarsRef.current = null;
+      }
+    }
+  }, [isHovering]); //, level.startingPositions]);
+
+  useEffect(() => {
+    console.log("reset level");
+    setCars(level.startingPositions);
+  }, [level.levelID]);
+
   /*------------------------------------------------
     Handles cars being dragged on frontend board 
   ------------------------------------------------*/
-  function handleDragStop(_: DraggableEvent, data: DraggableData) {
-    let oldCar = JSON.parse(data.node.id);
-    const x = Math.round(data.x / cellWidth);
-    const y = Math.round(data.y / cellWidth);
-    let newCar = { ...oldCar, x, y };
-
-    console.log(canMove, isHovering);
-    console.log(oldCar);
-    console.log(newCar);
-
-    // if the same do nothing
-    if (oldCar.x === newCar.x && oldCar.y === newCar.y) {
+  function handleCarDrag(
+    car: Car,
+    newPosition: { x: number; y: number },
+  ): void {
+    if (!canMove) {
+      console.log(`Can't move right now`);
       return;
     }
-    if (canMove && isLegalMove(cars, oldCar, newCar)) {
-      let newCars = cars.map((car) =>
-        car.x === oldCar.x && car.y === oldCar.y ? newCar : car,
-      );
-      setNewCarsState(newCars);
+    const newCar = { ...car, x: newPosition.x, y: newPosition.y };
+    const isLegal = checkIsLegalMove(cars, newCar);
 
-      // Check if the red car is at the exit
-      const redCar = newCars[0];
-      if (redCar.x === 4 && redCar.y === 2 && !redCar.vertical) {
+    if (isLegal) {
+      //check if level is complete
+      if (newCar.carID == 5 && newCar.x >= 4) {
         levelCompleted();
       }
-    } else {
-      /*
-    else if (
-      currentGameState === gameState.settingCustomLevel &&
-      isLegalCustomMove(cars, oldCar, newCar)
-    ) {
-      let newCars = cars.map((car) =>
-        car.x === oldCar.x && car.y === oldCar.y ? newCar : car,
-      );
+
+      const newCars = cars.map((c: Car) => {
+        if (c.carID == car.carID) {
+          return newCar;
+        }
+        return c;
+      });
+
+      setCars(newCars);
       setNewCarsState(newCars);
-    }
-    */
-      // trigger a rerender so the draggable goes back to the original position
-      setCars([...cars]);
     }
   }
 
   return (
     <div
       ref={gridRef}
-      className="relative border-2  h-full w-full overflow-hidden flex flex-col min-h-0"
+      className="relative border-2 h-full overflow-hidden flex flex-col min-h-0"
     >
       <BoardGrid
         rows={6}
         cols={6}
         carsBoard={squaresWithCars}
-        handleCarMove={function (car: Car, newPosition): void {
-          if (!canMove) {
-            console.log(`Can't move right now`);
-            return;
-          }
-          const newCar = { ...car, x: newPosition.x, y: newPosition.y };
-          const isLegal = checkIsLegalMove(cars, newCar);
-          console.log(
-            `Move from (${car.x}, ${car.y}) to (${
-              newPosition.x
-            }, ${newPosition.y}) is ${isLegal ? "" : "il"}legal`,
-          );
-
-          if (isLegal) {
-            //check if level is complete
-            if (newCar.carID == 5 && newCar.x >= 4) {
-              levelCompleted();
-            }
-
-            const newCars = cars.map((c: Car) => {
-              if (c.carID == car.carID) {
-                return newCar;
-              }
-              return c;
-            });
-
-            setCars(newCars);
-            setNewCarsState(newCars);
-          }
+        handleCarMove={(car: Car, newPosition: { x: number; y: number }) => {
+          handleCarDrag(car, newPosition);
         }}
       />
 
       {/* previews the car positions stored in the node being hovered */}
       {isHovering &&
-        cars.map((car) => {
-          const inset = 4; // Match your existing car inset
-          const cellWidth = 63.333; // Match your existing cellWidth
-
-          return (
-            <div
-              //key={`preview-${idx}`}
-              className={`absolute bg-${car.color}-500 opacity-40 rounded-xl`}
-              style={{
-                width:
-                  (car.vertical ? cellWidth : cellWidth * car.length) -
-                  inset * 2,
-                height:
-                  (car.vertical ? cellWidth * car.length : cellWidth) -
-                  inset * 2,
-                top: 6 + car.y * cellWidth,
-                left: 6 + car.x * cellWidth,
-                pointerEvents: "none",
-              }}
-            />
-          );
-        })}
+        cars.map((car, i) => (
+          <CarUI key={i} car={car} cellWidth={cellWidth} isTransparent={true} />
+        ))}
 
       {/* Showing cars on regular board */}
       {!isHovering &&
-        cars.map((car, i) => <CarUI key={i} car={car} cellWidth={cellWidth} />)}
+        cars.map((car, i) => (
+          <CarUI
+            key={i}
+            car={car}
+            cellWidth={cellWidth}
+            isTransparent={false}
+          />
+        ))}
     </div>
   );
 }
@@ -218,14 +184,14 @@ export function BoardGrid({
               //mouse pressed, select new car
 
               if (newState) {
-                console.log(r, c);
-                console.log(car);
+                //console.log(r, c);
+                //console.log(car);
                 if (car) {
                   setSelectedCar(car);
                   const newOffset = { x: c - car.x, y: r - car.y };
                   setOffset(newOffset);
 
-                  console.log(newOffset);
+                  //console.log(newOffset);
                 }
               }
 
@@ -287,7 +253,15 @@ export function BoardSquare({
   );
 }
 
-export function CarUI({ car, cellWidth }: { car: Car; cellWidth: number }) {
+export function CarUI({
+  car,
+  cellWidth,
+  isTransparent,
+}: {
+  car: Car;
+  cellWidth: number;
+  isTransparent: boolean;
+}) {
   const inset = 4;
 
   const carWidth =
@@ -305,6 +279,7 @@ export function CarUI({ car, cellWidth }: { car: Car; cellWidth: number }) {
         top: car.y * cellWidth + inset + 2,
         left: car.x * cellWidth + inset + 2,
         backgroundColor: car.color,
+        ...(isTransparent ? { opacity: 0.7 } : {}),
       }}
     />
   );
